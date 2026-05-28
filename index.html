@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mẫu thiệp cưới online</title>
+  <meta name="description" content="Danh sách mẫu thiệp cưới trực tuyến" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f8f1e8;
+      --ink: #2f2924;
+      --muted: #81746a;
+      --gold: #b88a44;
+      --line: rgba(47, 41, 36, 0.12);
+      --shadow: 0 12px 40px rgba(50, 34, 20, 0.1);
+      --serif: "Cormorant Garamond", serif;
+      --sans: "Be Vietnam Pro", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #f4eadf 0%, #efe0cf 100%);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.6;
+      padding: 32px 16px 48px;
+    }
+
+    main {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(28px, 6vw, 36px);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .list {
+      display: grid;
+      gap: 16px;
+      list-style: none;
+    }
+
+    .card {
+      display: block;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      color: inherit;
+      padding: 20px 22px;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      box-shadow: 0 16px 48px rgba(50, 34, 20, 0.14);
+      transform: translateY(-2px);
+    }
+
+    .card-label {
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .card-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .card-desc {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .card-arrow {
+      color: var(--gold);
+      float: right;
+      font-size: 18px;
+      margin-top: -4px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Mẫu thiệp cưới online</h1>
+      <p class="subtitle">Chọn một mẫu để xem thiệp mời</p>
+    </header>
+
+    <ul class="list">
+      <li>
+        <a class="card" href="thiep_cuoi_1.html">
+          <span class="card-arrow">→</span>
+          <div class="card-label">Mẫu 1</div>
+          <div class="card-title">Minh Anh &amp; Hoàng Nam</div>
+          <p class="card-desc">Tông ấm, giấy vintage nhẹ nhàng</p>
+        </a>
+      </li>
+      <li>
+        <a class="card" href="thiep_cuoi_2.html">
+          <span class="card-arrow">→</span>
+          <div class="card-label">Mẫu 2</div>
+          <div class="card-title">Minh Hoàng &amp; Mai Hương</div>
+          <p class="card-desc">Phong cách đỏ vàng truyền thống</p>
+        </a>
+      </li>
+      <li>
+        <a class="card" href="thiep_cuoi_3.html">
+          <span class="card-arrow">→</span>
+          <div class="card-label">Mẫu 3</div>
+          <div class="card-title">Minh Anh &amp; Hoàng Nam</div>
+          <p class="card-desc">Đông Dương vintage, xanh ngọc và vàng đồng</p>
+        </a>
+      </li>
+      <li>
+        <a class="card" href="thiep_cuoi_4.html">
+          <span class="card-arrow">→</span>
+          <div class="card-label">Mẫu 4</div>
+          <div class="card-title">Minh Anh &amp; Hoàng Nam</div>
+          <p class="card-desc">Luxury đen vàng sang trọng</p>
+        </a>
+      </li>
+    </ul>
+  </main>
+</body>
+</html>

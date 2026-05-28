@@ -1,0 +1,1639 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thiệp mời cưới — Minh Anh &amp; Hoàng Nam</title>
+    <meta
+      name="description"
+      content="Thiệp mời cưới trực tuyến — Luxury Black &amp; Gold · Minh Anh &amp; Hoàng Nam"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Great+Vibes&family=Libre+Baskerville:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+
+    <style>
+      :root {
+        --ink: #f5f5f5;
+        --muted: #a0a0a0;
+        --accent: #d4af37;
+        --accent-soft: #e8c96a;
+        --surface: #111111;
+        --surface-alt: #1a1a1a;
+        --slate: #2c2c2c;
+        --line: rgba(212, 175, 55, 0.34);
+        --shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+
+        --serif: "Cormorant Garamond", serif;
+        --script: "Great Vibes", cursive;
+        --quote: "Playfair Display", serif;
+        --date-font: "Libre Baskerville", serif;
+        --sans: "Be Vietnam Pro", sans-serif;
+
+        --page-width: 420px;
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 20px;
+        --space-6: 24px;
+        --space-7: 28px;
+        --space-8: 32px;
+        --space-9: 40px;
+        --space-10: 44px;
+        --section-space: var(--space-10);
+        --head-gap: var(--space-6);
+        --content-gap: var(--space-5);
+        --stack-gap: var(--space-3);
+
+        --radius-sm: 18px;
+        --radius-md: 24px;
+        --radius-lg: 28px;
+        --radius-xl: 32px;
+
+        --text-xs: 10px;
+        --text-sm: 12px;
+        --text-base: 13px;
+        --text-md: 15px;
+        --text-lg: 18px;
+        --text-xl: 24px;
+        --text-2xl: 48px;
+        --text-hero: 62px;
+
+        --pinstripe: repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 22px,
+          rgba(255, 255, 255, 0.028) 22px,
+          rgba(255, 255, 255, 0.028) 23px
+        );
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        min-height: 100vh;
+        background: #080808 var(--pinstripe);
+        color: var(--ink);
+        font-family: var(--sans);
+        line-height: 1.55;
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .app {
+        width: min(100%, var(--page-width));
+        margin: 0 auto;
+        overflow: hidden;
+        position: relative;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .section {
+        position: relative;
+        padding: var(--section-space) 22px;
+        z-index: 1;
+      }
+
+      .section.is-cream {
+        background: var(--surface-alt) var(--pinstripe);
+      }
+
+      .section-head {
+        margin-bottom: var(--head-gap);
+        text-align: center;
+      }
+
+      .section-title {
+        font-family: var(--script);
+        font-size: var(--text-2xl);
+        font-weight: 400;
+        line-height: 1;
+        color: var(--accent);
+      }
+
+      .section-kicker {
+        margin-top: var(--space-3);
+        font-size: 11px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .ornament {
+        width: 146px;
+        height: 28px;
+        margin: 14px auto 0;
+        color: var(--accent);
+        opacity: 0.85;
+      }
+
+      /* Hero — full-bleed overlay (khác band+plaque Indochine) */
+      .hero {
+        min-height: 720px;
+        padding: 0;
+        color: var(--ink);
+        background: #0a0a0a;
+      }
+
+      .hero-photo {
+        position: absolute;
+        inset: 0;
+      }
+
+      .hero-photo::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(8, 8, 8, 0.55) 0%,
+            rgba(8, 8, 8, 0.2) 38%,
+            rgba(8, 8, 8, 0.88) 100%
+          ),
+          radial-gradient(
+            circle at 50% 22%,
+            rgba(212, 175, 55, 0.12),
+            transparent 48%
+          );
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        min-height: 720px;
+        padding: 36px 24px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: center;
+      }
+
+      .hero-top {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-3);
+      }
+
+      .monogram {
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-family: var(--serif);
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        color: var(--accent);
+        background: rgba(17, 17, 17, 0.72);
+        border: 1px solid var(--line);
+        box-shadow:
+          inset 0 0 0 1px rgba(212, 175, 55, 0.2),
+          0 12px 32px rgba(0, 0, 0, 0.45);
+      }
+
+      .monogram span {
+        font-size: 14px;
+        letter-spacing: 0.12em;
+        opacity: 0.75;
+      }
+
+      .brand-label {
+        font-family: var(--sans);
+        font-size: var(--text-xs);
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        color: var(--accent-soft);
+        font-weight: 600;
+      }
+
+      .invite-for {
+        width: 100%;
+        max-width: 340px;
+        margin: 0 auto;
+        padding: 14px 18px;
+        border-radius: 999px;
+        background: rgba(26, 26, 26, 0.82);
+        border: 1px solid var(--line);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+      }
+
+      .invite-for small {
+        display: block;
+        font-size: var(--text-xs);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .invite-for strong {
+        display: block;
+        margin-top: 4px;
+        font-family: var(--serif);
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--ink);
+      }
+
+      .hero-bottom {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-4);
+      }
+
+      .couple-names {
+        font-family: var(--script);
+        font-size: var(--text-hero);
+        font-weight: 400;
+        line-height: 0.95;
+        color: var(--accent);
+        text-shadow: 0 4px 28px rgba(0, 0, 0, 0.5);
+      }
+
+      .couple-names span {
+        display: block;
+      }
+
+      .hero-date {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        padding: 10px 20px;
+        border: 1px solid var(--line);
+        background: rgba(17, 17, 17, 0.65);
+        font-family: var(--date-font);
+        font-size: var(--text-sm);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-variant-numeric: lining-nums tabular-nums;
+        font-feature-settings: "lnum" 1, "tnum" 1;
+      }
+
+      .hero-date b {
+        font-size: 38px;
+        line-height: 1;
+        letter-spacing: 0;
+        color: var(--accent-soft);
+        font-variant-numeric: lining-nums tabular-nums;
+        font-feature-settings: "lnum" 1, "tnum" 1;
+      }
+
+      /* Thư mời — paper-card tối + ảnh xếp chéo */
+      .paper-card {
+        position: relative;
+        padding: var(--space-6) var(--space-5);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        box-shadow:
+          inset 0 0 0 1px rgba(212, 175, 55, 0.12),
+          0 18px 48px rgba(0, 0, 0, 0.4);
+      }
+
+      .paper-card::before {
+        content: "";
+        position: absolute;
+        inset: 10px;
+        border: 1px solid rgba(212, 175, 55, 0.18);
+        border-radius: calc(var(--radius-md) - 8px);
+        pointer-events: none;
+      }
+
+      .invite-copy {
+        position: relative;
+        z-index: 1;
+        margin-top: var(--space-4);
+        text-align: center;
+        font-family: var(--quote);
+        font-size: 17px;
+        font-style: italic;
+        line-height: 1.75;
+        color: rgba(245, 245, 245, 0.9);
+      }
+
+      .triple-photo {
+        position: relative;
+        height: 300px;
+        margin-top: var(--content-gap);
+      }
+
+      .photo-tile {
+        position: absolute;
+        overflow: hidden;
+        margin: 0;
+        background: var(--slate);
+        border: 2px solid rgba(212, 175, 55, 0.55);
+        box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45);
+      }
+
+      .photo-tile:nth-child(1) {
+        width: 34%;
+        height: 200px;
+        left: 0;
+        top: 52px;
+        transform: rotate(-8deg);
+        z-index: 1;
+        border-radius: var(--radius-sm);
+      }
+
+      .photo-tile:nth-child(2) {
+        width: 48%;
+        height: 258px;
+        left: 26%;
+        top: 0;
+        z-index: 2;
+        border-radius: var(--radius-md);
+      }
+
+      .photo-tile:nth-child(3) {
+        width: 34%;
+        height: 200px;
+        right: 0;
+        top: 56px;
+        transform: rotate(8deg);
+        z-index: 1;
+        border-radius: var(--radius-sm);
+      }
+
+      .triple-caption {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: -8px;
+        z-index: 3;
+        padding: 14px 16px;
+        text-align: center;
+        background: rgba(17, 17, 17, 0.94);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+      }
+
+      .triple-caption strong {
+        display: block;
+        font-family: var(--serif);
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--accent);
+      }
+
+      .triple-caption span {
+        display: block;
+        margin-top: 4px;
+        font-size: var(--text-sm);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      /* Gia đình — 2 cột + couple overlay */
+      .parents-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--stack-gap);
+      }
+
+      .family-card {
+        padding: var(--space-5) var(--space-4);
+        text-align: center;
+        background: var(--surface-alt);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.08);
+      }
+
+      .family-title {
+        font-family: var(--sans);
+        font-size: var(--text-xs);
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .parent-name {
+        margin-top: var(--space-3);
+        font-family: var(--serif);
+        font-size: 19px;
+        font-weight: 600;
+        line-height: 1.45;
+        color: var(--ink);
+      }
+
+      .family-card address {
+        margin-top: var(--space-2);
+        font-style: normal;
+        font-size: 11px;
+        line-height: 1.55;
+        color: var(--muted);
+      }
+
+      .couple-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-3);
+        margin-top: var(--content-gap);
+      }
+
+      .person-card {
+        position: relative;
+        min-height: 320px;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        background: var(--slate);
+        border: 1px solid var(--line);
+      }
+
+      .person-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          transparent 42%,
+          rgba(8, 8, 8, 0.88) 100%
+        );
+      }
+
+      .person-info {
+        position: absolute;
+        z-index: 2;
+        left: 12px;
+        right: 12px;
+        bottom: 16px;
+        text-align: center;
+        color: var(--ink);
+      }
+
+      .person-info small {
+        display: block;
+        font-size: 9px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--accent-soft);
+        font-weight: 700;
+      }
+
+      .person-info h3 {
+        margin-top: 4px;
+        font-family: var(--script);
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.05;
+        color: var(--accent);
+      }
+
+      /* Thời gian — hàng ngày giữa + countdown */
+      .countdown-strip {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-2);
+        margin-bottom: var(--content-gap);
+      }
+
+      .countdown-cell {
+        padding: var(--space-3) var(--space-2);
+        text-align: center;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+      }
+
+      .countdown-cell b {
+        display: block;
+        font-family: var(--date-font);
+        font-size: 28px;
+        line-height: 1;
+        color: var(--accent);
+        font-variant-numeric: lining-nums tabular-nums;
+        font-feature-settings: "lnum" 1, "tnum" 1;
+      }
+
+      .countdown-cell span {
+        display: block;
+        margin-top: 6px;
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .time-card {
+        padding: var(--space-6) var(--space-4);
+        text-align: center;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.1);
+      }
+
+      .calendar-row {
+        display: grid;
+        grid-template-columns: 1fr 110px 1fr;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: var(--space-4);
+      }
+
+      .calendar-side {
+        padding-block: 8px;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        font-family: var(--date-font);
+        font-size: var(--text-sm);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-variant-numeric: lining-nums tabular-nums;
+        font-feature-settings: "lnum" 1, "tnum" 1;
+      }
+
+      .calendar-day {
+        font-family: var(--date-font);
+        font-size: 66px;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--accent);
+        font-variant-numeric: lining-nums tabular-nums;
+        font-feature-settings: "lnum" 1, "tnum" 1;
+      }
+
+      .time-main {
+        font-family: var(--date-font);
+        font-size: 21px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        color: var(--ink);
+        font-variant-numeric: lining-nums tabular-nums;
+        font-feature-settings: "lnum" 1, "tnum" 1;
+      }
+
+      .muted-note {
+        margin-top: var(--space-2);
+        font-size: var(--text-base);
+        color: var(--muted);
+      }
+
+      .calendar-card {
+        margin-top: var(--content-gap);
+        padding: var(--space-5) var(--space-4);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+      }
+
+      .month-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        margin-bottom: var(--space-4);
+        padding: 0 4px;
+        font-family: var(--date-font);
+        color: var(--accent);
+      }
+
+      .month-head span {
+        display: block;
+        margin-bottom: 8px;
+        font-family: var(--sans);
+        font-size: var(--text-xs);
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .month-head > div > strong {
+        display: block;
+        font-size: 25px;
+        line-height: 1;
+        font-variant-numeric: lining-nums tabular-nums;
+        font-feature-settings: "lnum" 1, "tnum" 1;
+      }
+
+      .month-head > strong {
+        flex-shrink: 0;
+        font-size: 25px;
+        line-height: 1;
+        font-variant-numeric: lining-nums tabular-nums;
+        font-feature-settings: "lnum" 1, "tnum" 1;
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        text-align: center;
+        font-variant-numeric: lining-nums tabular-nums;
+        font-feature-settings: "lnum" 1, "tnum" 1;
+      }
+
+      .calendar-grid b {
+        min-height: 22px;
+        font-size: 9px;
+        color: var(--muted);
+        text-transform: uppercase;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+      }
+
+      .calendar-grid span {
+        min-height: 32px;
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        color: var(--ink);
+        background: var(--slate);
+        border-radius: 4px;
+      }
+
+      .calendar-grid .blank {
+        background: transparent;
+      }
+
+      .calendar-grid .is-active {
+        background: var(--accent);
+        color: #111111;
+        font-weight: 700;
+        box-shadow: 0 0 14px rgba(212, 175, 55, 0.4);
+      }
+
+      .location-card {
+        margin-top: var(--content-gap);
+        padding: var(--space-6) var(--space-5);
+        text-align: center;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+      }
+
+      .map-pin {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto var(--space-3);
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: var(--accent);
+        background: var(--surface-alt);
+        border: 1px solid var(--line);
+      }
+
+      .location-card h3 {
+        font-family: var(--serif);
+        font-size: 26px;
+        font-weight: 600;
+        color: var(--accent);
+        line-height: 1.15;
+      }
+
+      .location-card p {
+        margin-top: var(--space-2);
+        font-size: var(--text-base);
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .btn-wrap {
+        margin-top: var(--space-4);
+      }
+
+      /* Album */
+      .album-masonry {
+        column-count: 2;
+        column-gap: 10px;
+      }
+
+      .album-item {
+        display: block;
+        break-inside: avoid;
+        margin: 0 0 10px;
+        overflow: hidden;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--line);
+        background: var(--slate);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      }
+
+      .album-item:nth-child(1) {
+        height: 230px;
+      }
+      .album-item:nth-child(2) {
+        height: 162px;
+      }
+      .album-item:nth-child(3) {
+        height: 190px;
+      }
+      .album-item:nth-child(4) {
+        height: 240px;
+      }
+      .album-item:nth-child(5) {
+        height: 152px;
+      }
+      .album-item:nth-child(6) {
+        height: 210px;
+      }
+      .album-item:nth-child(7) {
+        height: 176px;
+      }
+      .album-item:nth-child(8) {
+        height: 224px;
+      }
+
+      /* Mừng cưới */
+      .gift-card {
+        padding: var(--space-8) var(--space-5);
+        text-align: center;
+        border-radius: var(--radius-xl);
+        background:
+          radial-gradient(
+            circle at top,
+            rgba(212, 175, 55, 0.14),
+            transparent 50%
+          ),
+          var(--surface);
+        border: 1px solid var(--line);
+      }
+
+      .gift-card h3 {
+        font-family: var(--serif);
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      .gift-card p {
+        margin: var(--space-4) auto var(--space-5);
+        max-width: 300px;
+        font-size: var(--text-base);
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      /* RSVP */
+      .rsvp-card {
+        padding: var(--space-6) var(--space-5);
+        background: var(--surface-alt);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      .field {
+        margin-bottom: 14px;
+      }
+
+      .field label:not(.upload-box) {
+        display: block;
+        margin-bottom: 7px;
+        font-size: var(--text-sm);
+        font-weight: 700;
+        color: var(--accent-soft);
+      }
+
+      .field input,
+      .field textarea,
+      .field select {
+        width: 100%;
+        min-height: 52px;
+        padding: 13px 14px;
+        border: 1px solid rgba(212, 175, 55, 0.22);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        color: var(--ink);
+        outline: none;
+      }
+
+      .field textarea {
+        min-height: 116px;
+        resize: vertical;
+      }
+
+      .field input:focus,
+      .field textarea:focus,
+      .field select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+      }
+
+      .file-input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .field label.upload-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 106px;
+        margin-top: var(--space-2);
+        border: 1px dashed var(--line);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        cursor: pointer;
+      }
+
+      .upload-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: var(--accent);
+        background: rgba(212, 175, 55, 0.1);
+        border: 1px solid var(--line);
+      }
+
+      .preview {
+        display: none;
+        width: 70px;
+        height: 70px;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        border: 1px solid var(--line);
+      }
+
+      .preview.has-image {
+        display: block;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 20px;
+        border-radius: 999px;
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: #111111;
+        font-weight: 700;
+        font-size: var(--text-base);
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+
+      .btn:hover {
+        opacity: 0.9;
+      }
+
+      .btn.is-outline {
+        background: transparent;
+        color: var(--accent);
+      }
+
+      .btn.is-full {
+        width: 100%;
+        min-height: 52px;
+      }
+
+      .wish-list {
+        margin-top: var(--content-gap);
+        display: grid;
+        gap: var(--stack-gap);
+      }
+
+      .wish-item {
+        padding: 14px;
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        border: 1px solid var(--line);
+      }
+
+      .wish-item strong {
+        color: var(--accent);
+        font-size: var(--text-base);
+      }
+
+      .wish-item p {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: var(--text-sm);
+      }
+
+      /* Cảm ơn */
+      .thank-you {
+        min-height: 620px;
+        padding: 0;
+        color: var(--ink);
+        background: #0a0a0a;
+      }
+
+      .thank-bg {
+        position: absolute;
+        inset: 0;
+      }
+
+      .thank-bg::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(8, 8, 8, 0.35),
+          rgba(8, 8, 8, 0.82)
+        );
+      }
+
+      .thank-content {
+        position: relative;
+        z-index: 2;
+        min-height: 620px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 36px;
+        text-align: center;
+      }
+
+      .thank-content h2 {
+        font-family: var(--script);
+        font-size: var(--text-hero);
+        font-weight: 400;
+        line-height: 1;
+        color: var(--accent);
+      }
+
+      .thank-content p {
+        margin-top: var(--space-4);
+        font-family: var(--quote);
+        font-size: 17px;
+        font-style: italic;
+        color: rgba(245, 245, 245, 0.85);
+        max-width: 300px;
+      }
+
+      .couple-signoff {
+        margin-top: var(--space-6);
+        font-family: var(--serif);
+        font-size: var(--text-xl);
+        color: var(--accent-soft);
+      }
+
+      /* Modal */
+      .modal {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.82);
+        backdrop-filter: blur(10px);
+      }
+
+      .modal.is-open {
+        display: flex;
+      }
+
+      .modal-card {
+        position: relative;
+        width: min(100%, 360px);
+        padding: 24px 20px 20px;
+        text-align: center;
+        background: var(--surface-alt);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        animation: pop 0.22s ease-out;
+      }
+
+      @keyframes pop {
+        from {
+          opacity: 0;
+          transform: translateY(12px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--accent);
+        cursor: pointer;
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      .modal-title-sm {
+        font-size: 40px;
+        margin-bottom: var(--space-3);
+        line-height: 1;
+      }
+
+      .modal-lead {
+        color: var(--muted);
+        font-size: var(--text-sm);
+        line-height: 1.55;
+        max-width: 270px;
+        margin: 0 auto;
+      }
+
+      .gift-qr {
+        width: min(100%, 250px);
+        aspect-ratio: 1;
+        margin: 18px auto 0;
+        padding: var(--space-3);
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+      }
+
+      .gift-qr img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .gift-account {
+        margin-top: 12px;
+        display: grid;
+        gap: 3px;
+        font-size: var(--text-sm);
+        color: var(--muted);
+      }
+
+      .gift-account strong {
+        color: var(--accent);
+        font-size: var(--text-base);
+        letter-spacing: 0.04em;
+      }
+
+      @media (min-width: 760px) {
+        body {
+          padding: 28px 0;
+        }
+
+        .app {
+          border-radius: var(--radius-xl);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="app">
+      <section class="section hero" id="home">
+        <div class="hero-photo">
+          <img
+            src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=900&q=82"
+            alt="Ảnh cưới Minh Anh và Hoàng Nam"
+          />
+        </div>
+        <div class="hero-content">
+          <div class="hero-top">
+            <div class="monogram" aria-hidden="true">MA<span>&amp;</span>HN</div>
+            <p class="brand-label">Lễ thành hôn</p>
+            <svg class="ornament" viewBox="0 0 160 32" fill="none" aria-hidden="true">
+              <path d="M8 16H64" stroke="currentColor" stroke-width="1" />
+              <path d="M96 16H152" stroke="currentColor" stroke-width="1" />
+              <path
+                d="M80 6C86 10 86 22 80 26C74 22 74 10 80 6Z"
+                stroke="currentColor"
+                stroke-width="1.4"
+              />
+              <path
+                d="M72 16C74 12 78 10 80 10C82 10 86 12 88 16C86 20 82 22 80 22C78 22 74 20 72 16Z"
+                fill="currentColor"
+                opacity=".35"
+              />
+            </svg>
+          </div>
+
+          <div class="invite-for" data-aos="fade-up">
+            <small>Trân trọng kính mời</small>
+            <strong id="guestName">Quý khách</strong>
+          </div>
+
+          <div class="hero-bottom" data-aos="fade-up">
+            <h1 class="couple-names">
+              <span>Minh Anh</span>
+              <span>&amp;</span>
+              <span>Hoàng Nam</span>
+            </h1>
+            <div class="hero-date" aria-label="Ngày cưới">
+              <span>Thứ bảy</span>
+              <b>23</b>
+              <span>10.2027</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section is-cream">
+        <div class="paper-card" data-aos="fade-up">
+          <div class="section-head">
+            <div class="section-title">Thư Mời</div>
+            <div class="section-kicker">Buổi tiệc tối</div>
+            <svg class="ornament" viewBox="0 0 160 32" fill="none" aria-hidden="true">
+              <path d="M8 16H64" stroke="currentColor" stroke-width="1" />
+              <path d="M96 16H152" stroke="currentColor" stroke-width="1" />
+              <path
+                d="M80 6C86 10 86 22 80 26C74 22 74 10 80 6Z"
+                stroke="currentColor"
+                stroke-width="1.4"
+              />
+              <path
+                d="M72 16C74 12 78 10 80 10C82 10 86 12 88 16C86 20 82 22 80 22C78 22 74 20 72 16Z"
+                fill="currentColor"
+                opacity=".35"
+              />
+            </svg>
+          </div>
+          <p class="invite-copy">
+            Trong ánh đèn vàng của đêm tiệc, chúng tôi trân trọng kính mời quý
+            khách đến chung vui. Sự hiện diện của quý khách là niềm vinh hạnh
+            cho hai gia đình.
+          </p>
+        </div>
+
+        <div class="triple-photo" data-aos="fade-up" aria-label="Ba ảnh cưới">
+          <figure class="photo-tile">
+            <img
+              src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=500&q=80"
+              alt="Ảnh cưới 1"
+            />
+          </figure>
+          <figure class="photo-tile">
+            <img
+              src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=700&q=80"
+              alt="Ảnh cưới 2"
+            />
+          </figure>
+          <figure class="photo-tile">
+            <img
+              src="https://images.unsplash.com/photo-1529634806980-85c3dd6d34ac?auto=format&fit=crop&w=500&q=80"
+              alt="Ảnh cưới 3"
+            />
+          </figure>
+          <div class="triple-caption">
+            <strong>Minh Anh &amp; Hoàng Nam</strong>
+            <span>23 · 10 · 2027</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head" data-aos="fade-up">
+          <div class="section-title">Gia Đình</div>
+          <div class="section-kicker">Nhà trai &amp; Nhà gái</div>
+          <svg class="ornament" viewBox="0 0 160 32" fill="none" aria-hidden="true">
+            <path d="M8 16H64" stroke="currentColor" stroke-width="1" />
+            <path d="M96 16H152" stroke="currentColor" stroke-width="1" />
+            <path
+              d="M80 6C86 10 86 22 80 26C74 22 74 10 80 6Z"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+            <path
+              d="M72 16C74 12 78 10 80 10C82 10 86 12 88 16C86 20 82 22 80 22C78 22 74 20 72 16Z"
+              fill="currentColor"
+              opacity=".35"
+            />
+          </svg>
+        </div>
+        <div class="parents-grid" data-aos="fade-up">
+          <div class="family-card">
+            <div class="family-title">Nhà trai</div>
+            <div class="parent-name">
+              Ông Nguyễn Văn Hùng<br />Bà Trần Thị Lan
+            </div>
+            <address>
+              Thôn Đông, xã An Khánh,<br />Hoài Đức, Hà Nội
+            </address>
+          </div>
+          <div class="family-card">
+            <div class="family-title">Nhà gái</div>
+            <div class="parent-name">
+              Ông Phạm Văn Minh<br />Bà Lê Thị Hương
+            </div>
+            <address>
+              Số 18, phố Trần Hưng Đạo,<br />Hoàn Kiếm, Hà Nội
+            </address>
+          </div>
+        </div>
+        <div class="couple-split" data-aos="fade-up">
+          <article class="person-card">
+            <img
+              src="https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=600&q=80"
+              alt="Chú rể Hoàng Nam"
+            />
+            <div class="person-info">
+              <small>Chú rể</small>
+              <h3>Hoàng Nam</h3>
+            </div>
+          </article>
+          <article class="person-card">
+            <img
+              src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80"
+              alt="Cô dâu Minh Anh"
+            />
+            <div class="person-info">
+              <small>Cô dâu</small>
+              <h3>Minh Anh</h3>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section is-cream">
+        <div class="section-head" data-aos="fade-up">
+          <div class="section-title">Hôn Lễ</div>
+          <div class="section-kicker">Thời gian cụ thể</div>
+          <svg class="ornament" viewBox="0 0 160 32" fill="none" aria-hidden="true">
+            <path d="M8 16H64" stroke="currentColor" stroke-width="1" />
+            <path d="M96 16H152" stroke="currentColor" stroke-width="1" />
+            <path
+              d="M80 6C86 10 86 22 80 26C74 22 74 10 80 6Z"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+            <path
+              d="M72 16C74 12 78 10 80 10C82 10 86 12 88 16C86 20 82 22 80 22C78 22 74 20 72 16Z"
+              fill="currentColor"
+              opacity=".35"
+            />
+          </svg>
+        </div>
+
+        <div class="countdown-strip" data-aos="fade-up" aria-label="Thông tin ngày giờ">
+          <div class="countdown-cell">
+            <b>23</b>
+            <span>Ngày</span>
+          </div>
+          <div class="countdown-cell">
+            <b>10</b>
+            <span>Tháng</span>
+          </div>
+          <div class="countdown-cell">
+            <b>17:30</b>
+            <span>Giờ tiệc</span>
+          </div>
+        </div>
+
+        <div class="time-card" data-aos="fade-up">
+          <div class="calendar-row">
+            <div class="calendar-side">Thứ bảy</div>
+            <div class="calendar-day">23</div>
+            <div class="calendar-side">10.2027</div>
+          </div>
+          <div class="time-main">Vào lúc 17:30</div>
+          <p class="muted-note">Nhằm ngày 24 tháng 09 năm Đinh Mùi</p>
+        </div>
+
+        <div class="calendar-card" data-aos="fade-up">
+          <div class="month-head">
+            <div>
+              <span>Lịch cưới</span>
+              <strong>Tháng 10</strong>
+            </div>
+            <strong>2027</strong>
+          </div>
+          <div class="calendar-grid" aria-label="Lịch tháng 10 năm 2027">
+            <b>T2</b><b>T3</b><b>T4</b><b>T5</b><b>T6</b><b>T7</b><b>CN</b>
+            <span class="blank"></span><span class="blank"></span><span class="blank"></span><span class="blank"></span>
+            <span>1</span><span>2</span><span>3</span>
+            <span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+            <span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span>
+            <span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span class="is-active">23</span><span>24</span>
+            <span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span>
+          </div>
+        </div>
+
+        <div class="location-card" data-aos="fade-up">
+          <div class="map-pin" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 21s7-5.1 7-12a7 7 0 1 0-14 0c0 6.9 7 12 7 12Z"
+                stroke="currentColor"
+                stroke-width="1.8"
+              />
+              <circle
+                cx="12"
+                cy="9"
+                r="2.5"
+                stroke="currentColor"
+                stroke-width="1.8"
+              />
+            </svg>
+          </div>
+          <h3>Trung tâm tiệc cưới Sen Việt</h3>
+          <p>Số 88 đường Láng Hạ, quận Đống Đa, Hà Nội</p>
+          <div class="btn-wrap">
+            <a class="btn is-outline" href="https://maps.google.com" target="_blank" rel="noopener">Xem bản đồ</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head" data-aos="fade-up">
+          <div class="section-title">Ảnh Cưới</div>
+          <div class="section-kicker">Khoảnh khắc của chúng tôi</div>
+          <svg class="ornament" viewBox="0 0 160 32" fill="none" aria-hidden="true">
+            <path d="M8 16H64" stroke="currentColor" stroke-width="1" />
+            <path d="M96 16H152" stroke="currentColor" stroke-width="1" />
+            <path
+              d="M80 6C86 10 86 22 80 26C74 22 74 10 80 6Z"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+            <path
+              d="M72 16C74 12 78 10 80 10C82 10 86 12 88 16C86 20 82 22 80 22C78 22 74 20 72 16Z"
+              fill="currentColor"
+              opacity=".35"
+            />
+          </svg>
+        </div>
+        <div class="album-masonry" data-aos="fade-up">
+          <figure class="album-item"><img src="https://images.unsplash.com/photo-1529634806980-85c3dd6d34ac?auto=format&fit=crop&w=500&q=80" alt="Ảnh cưới 1" /></figure>
+          <figure class="album-item"><img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=500&q=80" alt="Ảnh cưới 2" /></figure>
+          <figure class="album-item"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=500&q=80" alt="Ảnh cưới 3" /></figure>
+          <figure class="album-item"><img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=500&q=80" alt="Ảnh cưới 4" /></figure>
+          <figure class="album-item"><img src="https://images.unsplash.com/photo-1494955870715-979ca4f13bf0?auto=format&fit=crop&w=500&q=80" alt="Ảnh cưới 5" /></figure>
+          <figure class="album-item"><img src="https://images.unsplash.com/photo-1460978812857-470ed1c77af0?auto=format&fit=crop&w=500&q=80" alt="Ảnh cưới 6" /></figure>
+          <figure class="album-item"><img src="https://images.unsplash.com/photo-1505932794465-147d1f1b2c97?auto=format&fit=crop&w=500&q=80" alt="Ảnh cưới 7" /></figure>
+          <figure class="album-item"><img src="https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?auto=format&fit=crop&w=500&q=80" alt="Ảnh cưới 8" /></figure>
+        </div>
+      </section>
+
+      <section class="section is-cream">
+        <div class="gift-card" data-aos="fade-up">
+          <h3>Mừng Cưới</h3>
+          <p>
+            Nếu quý khách muốn gửi chút tình cảm đến cô dâu chú rể, gia đình xin
+            trân trọng đón nhận và cảm ơn.
+          </p>
+          <button class="btn" id="openGiftModal" type="button">Mừng cưới</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head" data-aos="fade-up">
+          <div class="section-title">Lời Chúc</div>
+          <div class="section-kicker">Xác nhận tham dự</div>
+          <svg class="ornament" viewBox="0 0 160 32" fill="none" aria-hidden="true">
+            <path d="M8 16H64" stroke="currentColor" stroke-width="1" />
+            <path d="M96 16H152" stroke="currentColor" stroke-width="1" />
+            <path
+              d="M80 6C86 10 86 22 80 26C74 22 74 10 80 6Z"
+              stroke="currentColor"
+              stroke-width="1.4"
+            />
+            <path
+              d="M72 16C74 12 78 10 80 10C82 10 86 12 88 16C86 20 82 22 80 22C78 22 74 20 72 16Z"
+              fill="currentColor"
+              opacity=".35"
+            />
+          </svg>
+        </div>
+        <form class="rsvp-card" data-aos="fade-up" id="wishForm">
+          <div class="field">
+            <label for="name">Tên của bạn</label>
+            <input id="name" name="name" type="text" placeholder="Ví dụ: Anh Nam" required />
+          </div>
+          <div class="field">
+            <label for="attend">Tham dự</label>
+            <select id="attend" name="attend" required>
+              <option value="">Chọn câu trả lời</option>
+              <option value="Có thể tham dự">Có thể tham dự</option>
+              <option value="Chưa chắc chắn">Chưa chắc chắn</option>
+              <option value="Không thể tham dự">Không thể tham dự</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="message">Lời chúc</label>
+            <textarea id="message" name="message" placeholder="Gửi lời chúc tới cô dâu chú rể..." required></textarea>
+          </div>
+          <div class="field">
+            <label for="attachment">Ảnh đính kèm</label>
+            <input class="file-input" id="attachment" name="attachment" type="file" accept="image/*" />
+            <label class="upload-box" for="attachment">
+              <span class="upload-icon" id="uploadIcon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 15V3M7.5 7.5 12 3l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                  <path d="M4 17.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5" stroke="currentColor" stroke-width="1.6"/>
+                </svg>
+              </span>
+              <span class="preview" id="preview"></span>
+            </label>
+          </div>
+          <button class="btn is-full" type="submit">Gửi lời chúc</button>
+        </form>
+        <div class="wish-list" id="wishList" aria-live="polite"></div>
+      </section>
+
+      <section class="section thank-you">
+        <div class="thank-bg">
+          <img
+            src="https://images.unsplash.com/photo-1494774157365-9e04c6720e47?auto=format&fit=crop&w=900&q=80"
+            alt="Ảnh cưới kết trang"
+          />
+        </div>
+        <div class="thank-content" data-aos="fade-up">
+          <h2>Cảm Ơn</h2>
+          <p>
+            Sự hiện diện của quý khách là món quà ý nghĩa nhất trong ngày vui của
+            chúng tôi.
+          </p>
+          <div class="couple-signoff">Minh Anh &amp; Hoàng Nam</div>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal" id="giftModal" aria-hidden="true" role="dialog" aria-label="Thông tin mừng cưới">
+      <div class="modal-card">
+        <button class="modal-close" id="closeGiftModal" type="button" aria-label="Đóng">×</button>
+        <div class="section-title modal-title-sm">Mừng Cưới</div>
+        <p class="modal-lead">
+          Cảm ơn quý khách đã gửi gắm tình cảm và lời chúc tốt đẹp trong ngày
+          vui của hai gia đình.
+        </p>
+        <div class="gift-qr">
+          <img
+            src="https://img.vietqr.io/image/970422-0886138003-qr_only.png?addInfo=Ten%20khach%20moi%20gui%20loi%20chuc&accountName=TRAN%20TRONG%20NAM"
+            alt="Mã VietQR mừng cưới"
+          />
+        </div>
+        <div class="gift-account">
+          <strong>TRAN TRONG NAM</strong>
+          <span>0886138003</span>
+          <span>MB — Ngân hàng TMCP Quân đội</span>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const guest = params.get("guest") || params.get("to");
+      const guestName = document.getElementById("guestName");
+
+      if (guest && guestName) {
+        guestName.textContent = decodeURIComponent(guest.replace(/\+/g, " "));
+      }
+
+      const giftModal = document.getElementById("giftModal");
+      const openGiftModal = document.getElementById("openGiftModal");
+      const closeGiftModal = document.getElementById("closeGiftModal");
+
+      function openModal() {
+        giftModal.classList.add("is-open");
+        giftModal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal() {
+        giftModal.classList.remove("is-open");
+        giftModal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+
+      openGiftModal.addEventListener("click", openModal);
+      closeGiftModal.addEventListener("click", closeModal);
+      giftModal.addEventListener("click", (event) => {
+        if (event.target === giftModal) closeModal();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && giftModal.classList.contains("is-open"))
+          closeModal();
+      });
+
+      const attachment = document.getElementById("attachment");
+      const preview = document.getElementById("preview");
+      const uploadIcon = document.getElementById("uploadIcon");
+
+      attachment.addEventListener("change", () => {
+        const file = attachment.files && attachment.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          preview.innerHTML = `<img src="${reader.result}" alt="Ảnh đã tải lên" />`;
+          preview.classList.add("has-image");
+          uploadIcon.style.display = "none";
+        };
+        reader.readAsDataURL(file);
+      });
+
+      const wishForm = document.getElementById("wishForm");
+      const wishList = document.getElementById("wishList");
+      const STORAGE_KEY = "wedding_wishes_luxury_black_gold";
+
+      function escapeHTML(value) {
+        return String(value).replace(
+          /[&<>"']/g,
+          (char) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#039;",
+            })[char],
+        );
+      }
+
+      function addWishToDOM(wish, prepend = true) {
+        const item = document.createElement("article");
+        item.className = "wish-item";
+        item.setAttribute("data-aos", "fade-up");
+        item.innerHTML = `
+        <strong>${escapeHTML(wish.name)} · ${escapeHTML(wish.attend)}</strong>
+        <p>${escapeHTML(wish.message)}</p>
+      `;
+        if (prepend) wishList.prepend(item);
+        else wishList.append(item);
+      }
+
+      function loadWishes() {
+        const wishes = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        wishes.reverse().forEach((wish) => addWishToDOM(wish, false));
+        AOS.refresh();
+      }
+
+      wishForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(wishForm);
+        const wish = {
+          name: formData.get("name"),
+          attend: formData.get("attend"),
+          message: formData.get("message"),
+        };
+        const wishes = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        wishes.push(wish);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(wishes));
+        addWishToDOM(wish);
+        AOS.refresh();
+        wishForm.reset();
+        preview.innerHTML = "";
+        preview.classList.remove("has-image");
+        uploadIcon.style.display = "";
+      });
+
+      AOS.init({
+        once: false,
+        mirror: true,
+        duration: 800,
+        offset: 100,
+        easing: "ease-out-cubic",
+      });
+
+      loadWishes();
+    </script>
+  </body>
+</html>
