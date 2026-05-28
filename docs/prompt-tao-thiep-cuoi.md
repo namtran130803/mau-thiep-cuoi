@@ -8,11 +8,12 @@
 |---|------|---------|
 | 1 | **File này** | Quy tắc hợp đồng + menu biến thể |
 | 2 | **`docs/styles/XX-*.md`** | Palette, mood, họa tiết, **Tránh** — nguồn visual **duy nhất** |
-| 3 | **Bốn thiệp chuẩn** (đọc để hiểu skeleton + **layout đã chiếm**): |
-| | `thiep_cuoi_1.html` | Kem/nâu · ornament · hero overlay · arch 3 ảnh |
-| | `thiep_cuoi_2.html` | Đỏ/vàng · gold-divider · hero oval · ảnh xoay |
-| | `thiep_cuoi_3.html` | Indochine · plaque chồng band · grid panorama · tên trên ảnh |
-| | `thiep_cuoi_4.html` | Đen/vàng · monogram · countdown · calendar-row giữa |
+| 3 | **`index.html`** | Trang danh sách liên kết tới 4 mẫu chuẩn |
+| 4 | **Bốn thiệp chuẩn** (đọc để hiểu skeleton + **layout đã chiếm**): |
+| | `thiep_cuoi_1.html` | Kem/nâu · ornament · hero overlay full `100svh` · arch 3 ảnh |
+| | `thiep_cuoi_2.html` | Đỏ/vàng · gold-divider · hero oval full `100svh` · ảnh xoay |
+| | `thiep_cuoi_3.html` | Indochine · plaque chồng band full `100svh` · grid panorama · tên trên ảnh |
+| | `thiep_cuoi_4.html` | Đen/vàng · monogram · countdown · calendar-row giữa · hero overlay full `100svh` |
 
 Copy khối **「PROMPT GỬI CHO AI」**, thay `[...]`, đính kèm **file phong cách + 4 file HTML** (hoặc ít nhất 3 file + file theme mới nhất).
 
@@ -42,7 +43,7 @@ Mỗi cột = **một chữ ký (signature)** đang được dùng. Theme mới 
 | Block | `thiep_cuoi_1` | `thiep_cuoi_2` | `thiep_cuoi_3` | `thiep_cuoi_4` |
 |-------|----------------|----------------|----------------|----------------|
 | **Divider** | `.ornament` SVG | `.gold-divider` | `.section-divider` ◆ | `.ornament` SVG |
-| **Hero** | Overlay flex + `.invite-for` | `.hero-frame` oval | Band + `.hero-plaque` + pill dọc | Overlay + `.monogram` + `.invite-for` |
+| **Hero** | Overlay flex + `.invite-for` · **`100svh`** | `.hero-frame` oval · **`100svh`** | Band + `.hero-plaque` · **`100svh`** | Overlay + `.monogram` · **`100svh`** |
 | **Thư mời** | `.intro-card` | `.paper-card` sáng | `.intro-card` + drop cap | `.paper-card` tối + `.invite-copy` |
 | **3 ảnh** | `.triple-photo__item` arch absolute | `.photo-tile` xoay chồng | Grid panorama vòm | `.photo-tile` xoay + `.triple-caption` |
 | **Gia đình** | `.parents-grid` 2 cột | `.parents-grid` card tối | List dọc 1 cột viền | `.parents-grid` 2 cột viền gold |
@@ -50,7 +51,7 @@ Mỗi cột = **một chữ ký (signature)** đang được dùng. Theme mới 
 | **Giờ** | `.calendar-row` + `.time-main` | `.time-card` 2 cột `.date-box` | Banner accent `.date-box` | `.countdown-strip` + `.calendar-row` |
 | **Lịch head** | `.month-head` trái/phải | `.calendar-head` 2 dòng | `.calendar-head` 2 dòng | `.month-head` trái/phải |
 | **Địa điểm** | `.location-card` giữa | `.venue-card` giữa | `.venue-card` grid pin | `.location-card` giữa |
-| **Đặc trưng khác** | lá SVG trang trí | nền đỏ gradient | `.is-framed` góc | pinstripe + khung kép |
+| **Đặc trưng khác** | lá SVG trang trí · shell full-width | nền đỏ gradient · shell full-width | `.is-framed` góc · shell full-width | pinstripe + khung kép · shell full-width |
 
 ### Thuật toán chọn combo cho theme mới
 
@@ -89,6 +90,24 @@ Bước 4 — Trong output, in bảng “Layout fingerprint” (mẫu cuối pro
 
 Rút từ `thiep_cuoi_1` … `thiep_cuoi_4` — **bắt buộc** mọi thiệp mới.
 
+### Vỏ trang (shell) — đã chuẩn hoá
+
+| Thành phần | Quy tắc |
+|------------|---------|
+| `.app` | `width: min(100%, var(--page-width))`; `margin: 0 auto`; **`border-radius: 0`** — không bo 4 góc khung thiệp |
+| `body` | **Không** `padding` dọc quanh `.app` (đã bỏ `padding: 28px 0` trên desktop) |
+| `.section` | **`padding: var(--section-space) 22px`** — có khoảng dọc giữa các block; **ngoại lệ:** `.section.hero`, `.section.thank-you` ghi đè `padding` riêng |
+| `.section.hero` | **`min-height: 100svh; height: 100svh; padding: 0`** — hero luôn full viewport nhỏ (mobile browser chrome) |
+| `@media (min-width: 760px)` | **Không** thêm `body` padding dọc hay `.app` border-radius |
+
+**Hero — triển khai nội bộ (giữ biến thể layout, tuân chiều cao):**
+
+| File | Cách lấp đầy `100svh` |
+|------|-------------------------|
+| `1`, `4` | `.hero-photo` absolute `inset: 0`; `.hero-content` `min-height: 100%; height: 100%` flex dọc |
+| `2` | `.hero` flex column; `.hero-frame` `flex: 1; min-height: 0` (oval full chiều cao) |
+| `3` | `.hero` flex column; `.hero-photo` `flex: 1; min-height: 0` (band ảnh co giãn); `.hero-content` `flex-shrink: 0` |
+
 ### Cấu trúc trang
 
 ```
@@ -110,11 +129,21 @@ Nhịp `is-cream` xen kẽ như trên (**chuẩn** `thiep_cuoi_1`, `3`, `4`). `t
 
 | Nhóm | Token | Giá trị cố định |
 |------|--------|-----------------|
-| Spacing | `--space-1` … `--space-10`, `--section-space`, `--head-gap`, `--content-gap`, `--stack-gap` | Giống 4 file |
+| Spacing | `--space-1` … `--space-10`, `--section-space`, `--head-gap`, `--content-gap`, `--stack-gap` | Giống 4 file — **`--section-space` dùng cho `.section` padding dọc** (hero/thank-you ngoại lệ) |
 | Type scale | `--text-xs` … `--text-hero` | Giống 4 file |
-| Radius token | `--radius-sm` … `--radius-xl` | Giống 4 file — **áp dụng** giá trị nhỏ/lớn theo theme |
+| Radius token | `--radius-sm` … `--radius-xl` | Giống 4 file — **áp dụng** trên card/nút/modal; **không** bo `.app` |
 | Font family | `--serif`, `--script`, `--date-font`, `--sans` | Không đổi |
 | Theme | `--ink`, `--muted`, `--accent`, `--accent-soft`, `--surface`, `--surface-alt`, `--line`, `--shadow` | Từ file phong cách |
+
+### Gia đình — typography gọn (bắt buộc)
+
+Tránh chữ quá to trong card hẹp (~160px). Tham chiếu 4 file đã chỉnh:
+
+| Phần | Chuẩn | Tránh |
+|------|--------|-------|
+| `.parent-name` | `13px` (`--text-base`) hoặc `11px` trên nền tối; `line-height: 1.55–1.85`; `font-weight: 500` trừ theme serif đậm | `19px`–`22px` trên card 2 cột hẹp |
+| `.person-info h3` | `--script` **`24px`–`28px`**; `line-height: 1.1`; `white-space: nowrap` khi tên ngắn | `30px`+ làm card couple tràn |
+| `.person-info small` | `9px`–`10px`, letter-spacing rộng, uppercase | — |
 
 ### Mọi section chính
 
@@ -148,6 +177,7 @@ Dùng đúng tên; **không** đặt `triple-photo__item`, `qr-box`, `active-dat
 - Một file HTML; CSS trong `<style>`, JS một `<script>`
 - Không inline `style=""`; không React/Tailwind/Bootstrap
 - Spacing qua token — không rải `18px`, `22px` tùy hứng
+- **Shell:** `.app` không bo góc; `.section` có padding dọc (`--section-space`); hero/thank-you `padding: 0`; hero `100svh`
 - `data-aos="fade-up"` trên block chính; không tự viết IntersectionObserver
 - Xóa CSS/JS không dùng sau khi đổi layout
 - Comment CSS theo section: `/* Hero */`, `/* Thư mời */`, …
@@ -222,7 +252,7 @@ Senior Frontend — tạo **một file `.html`** thiệp mời cưới tiếng V
 
 ## Quy tắc cứng vs mềm
 
-**Cứng:** 8 section + nhịp `is-cream`; tokens spacing/type; class whitelist; AOS; modal `.gift-qr`; `.calendar-grid .is-active`; `escapeHTML`; không inline style.
+**Cứng:** 8 section + nhịp `is-cream`; tokens spacing/type; class whitelist; AOS; modal `.gift-qr`; `.calendar-grid .is-active`; `escapeHTML`; không inline style; **`.app` `border-radius: 0`**; **`.section` `padding: var(--section-space) 22px`** (hero/thank-you `padding: 0`); **hero `100svh`**; **tên gia đình/couple gọn** (bảng typography).
 
 **Mềm (theo phong cách + chống trùng):** màu `:root`; divider; hero; `.triple-photo`; couple; giờ/lịch/địa điểm; pattern nền — **mỗi mục phải khác signature file gần nhất** (bảng 10 block).
 
@@ -244,6 +274,27 @@ Senior Frontend — tạo **một file `.html`** thiệp mời cưới tiếng V
   --stack-gap: var(--space-3);
   --radius-sm: 18px; --radius-md: 24px; --radius-lg: 28px; --radius-xl: 32px;
   --text-xs: 10px; … --text-hero: 62px;
+}
+
+.app {
+  width: min(100%, var(--page-width));
+  margin: 0 auto;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.section {
+  padding: var(--section-space) 22px;
+}
+
+.section.hero,
+.section.thank-you {
+  padding: 0;
+}
+
+.section.hero {
+  min-height: 100svh;
+  height: 100svh;
 }
 ```
 
@@ -306,7 +357,7 @@ Senior Frontend — tạo **một file `.html`** thiệp mời cưới tiếng V
 }
 ```
 
-**Hero:** một trong các biến thể menu — **không** bắt buộc flex; **cấm** clone plaque chồng band (`thiep_cuoi_3`) hoặc oval (`thiep_cuoi_2`) trừ khi sửa đúng file đó.
+**Hero:** một trong các biến thể menu — **luôn** `min-height: 100svh; height: 100svh; padding: 0`; triển khai nội bộ theo bảng shell ở trên — **cấm** clone plaque chồng band (`thiep_cuoi_3`) hoặc oval (`thiep_cuoi_2`) trừ khi sửa đúng file đó.
 
 **Couple:** `.couple-split` (tên dưới ảnh) **hoặc** `.couple-cards` (overlay / flex tên trên) — chọn **khác** file có cùng palette group và trùng ≥ 6/10.
 
@@ -332,6 +383,9 @@ Giữ thứ tự và config như **Hợp đồng chung** ở trên.
 ## Checklist
 
 - [ ] Skeleton 8 section + nhịp `is-cream` như 4 file mẫu
+- [ ] Shell: `.app` không bo góc; không `body` padding dọc; `.section` có `--section-space` dọc (trừ hero/thank-you)
+- [ ] Hero full `100svh` (overlay / oval / band+plaque đúng file)
+- [ ] Gia đình: `.parent-name` ≤ `13px` (hoặc `11px` nền tối); `.person-info h3` `24–28px`
 - [ ] Palette từ `[FILE_PHONG_CACH]` only
 - [ ] **Fingerprint:** trùng ≤ 5/10 với mỗi `thiep_cuoi_1`…`4` (ghi bảng trong output)
 - [ ] Không clone 10/10 một cột sổ đăng ký
@@ -363,11 +417,11 @@ Giữ thứ tự và config như **Hợp đồng chung** ở trên.
 ## Gửi AI — mẫu lệnh (copy)
 
 ```
-Tạo thiệp cưới HTML theo @prompt-tao-thiep-cuoi-html-dong-nhat.md
+Tạo thiệp cưới HTML theo @docs/prompt-tao-thiep-cuoi.md
 
 Phong cách: @docs/styles/[ten-phong-cach].md
 Bộ skeleton: đọc thiep_cuoi_1.html … thiep_cuoi_4.html
-→ Cùng hợp đồng (8 section, tokens, JS). Combo layout KHÔNG trùng ≥ 6/10 với bất kỳ file 1–4 (bảng fingerprint bắt buộc trong output).
+→ Cùng hợp đồng (8 section, tokens, JS, shell full-width, hero 100svh). Combo layout KHÔNG trùng ≥ 6/10 với bất kỳ file 1–4 (bảng fingerprint bắt buộc trong output).
 
 Thông tin:
 - Cô dâu: …
@@ -387,6 +441,8 @@ Thông tin:
 | Theme mới ra sao? | `.md` (màu) + **combo block khác** sổ đăng ký (≤ 5/10 trùng mỗi file) |
 | Trùng Indochine / Luxury? | Đổi Hero + 3 ảnh + couple — đổi màu không đủ |
 | Tránh gì? | Clone cả cột một `thiep_cuoi_*.html`; class lệch (`qr-box`, `active-date`) |
+| Xem nhanh 4 mẫu? | Mở `index.html` — liên kết tới `thiep_cuoi_1`…`4` |
+| Hero / vỏ trang? | Hero **`100svh`**; `.app` **không bo góc**; section có **`--section-space`** dọc (hero/thank-you ngoại lệ) |
 
 ### Chỉ lệch hợp đồng khi user nói rõ
 
@@ -394,4 +450,8 @@ Bỏ form, bỏ lịch, thêm nhạc, thêm phong bì, đổi nhịp `is-cream`,
 
 ### Bảo trì (khi merge thiệp mới vào repo)
 
-Sau khi tạo `thiep_cuoi_5.html` (hoặc sửa mạnh file 1–4): **cập nhật cột mới** trong bảng **Sổ đăng ký layout** ở đầu file này (10 block + đặc trưng), để lần sau AI không trùng lại.
+Sau khi tạo `thiep_cuoi_5.html` (hoặc sửa mạnh file 1–4):
+
+1. **Cập nhật cột mới** trong bảng **Sổ đăng ký layout** ở đầu file này (10 block + đặc trưng), để lần sau AI không trùng lại.
+2. **Giữ shell chuẩn:** `.app` `border-radius: 0`; `.section` `padding: var(--section-space) 22px` (hero/thank-you `padding: 0`); hero `100svh`; typography gia đình gọn.
+3. Thêm liên kết vào **`index.html`** nếu file mới là mẫu công khai trong repo.

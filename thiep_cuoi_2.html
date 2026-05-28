@@ -121,6 +121,7 @@
         margin: 0 auto;
         overflow: hidden;
         position: relative;
+        border-radius: 0;
         background:
           radial-gradient(
             circle at 50% 0%,
@@ -236,17 +237,23 @@
       }
 
       .hero {
-        min-height: 688px;
-        padding: 22px 22px 36px;
+        min-height: 100svh;
+        height: 100svh;
+        padding: 22px;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
+        justify-content: center;
+        align-items: stretch;
         text-align: center;
+        box-sizing: border-box;
       }
 
       .hero-frame {
         position: relative;
-        min-height: 616px;
+        flex: 0 0 auto;
+        width: 100%;
+        height: min(700px, calc(100svh - 44px));
+        min-height: 0;
         border: 1px solid rgba(248, 217, 144, 0.72);
         border-radius: 170px 170px 34px 34px;
         padding: 18px 18px 20px;
@@ -556,10 +563,10 @@
       }
 
       .parent-name {
-        margin-top: 12px;
+        margin-top: 10px;
         color: #fff2cc;
-        font-size: 12px;
-        line-height: 1.7;
+        font-size: 11px;
+        line-height: 1.55;
       }
 
       .family-card address {
@@ -619,9 +626,9 @@
         margin-top: 2px;
         color: white;
         font-family: var(--script);
-        font-size: 30px;
+        font-size: 24px;
         font-weight: 400;
-        line-height: 1.08;
+        line-height: 1.1;
         white-space: nowrap;
       }
 
@@ -1150,16 +1157,6 @@
         color: var(--red-800);
         font-size: 13px;
         letter-spacing: 0.04em;
-      }
-
-      @media (min-width: 760px) {
-        body {
-          padding: 28px 0;
-        }
-
-        .app {
-          border-radius: 34px;
-        }
       }
     </style>
   </head>

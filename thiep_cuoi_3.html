@@ -114,6 +114,7 @@
         margin: 0 auto;
         overflow: hidden;
         position: relative;
+        border-radius: 0;
         background: var(--surface);
         box-shadow: var(--shadow);
       }
@@ -208,15 +209,19 @@
 
       /* —— Hero: band ảnh + panel chữ (không oval / không full overlay mẫu) —— */
       .hero {
-        padding: 0;
+        min-height: 100svh;
+        height: 100svh;
+        padding: 0 0 var(--space-7);
+        display: grid;
+        grid-template-rows: minmax(200px, 1fr) auto;
+        box-sizing: border-box;
         background: var(--envelope);
       }
 
       .hero-photo {
         position: relative;
-        height: 52vh;
-        min-height: 300px;
-        max-height: 380px;
+        min-height: 0;
+        height: 100%;
       }
 
       .hero-photo::after {
@@ -232,12 +237,12 @@
 
       .hero-content {
         position: relative;
-        margin-top: -72px;
-        padding: 0 22px var(--space-8);
+        margin-top: -56px;
+        padding: 0 22px;
         z-index: 2;
         display: flex;
         flex-direction: column;
-        gap: var(--space-5);
+        gap: var(--space-4);
       }
 
       .hero-plaque {
@@ -309,10 +314,12 @@
         grid-template-columns: auto 1fr;
         gap: var(--space-3);
         align-items: center;
-        padding: var(--space-3) var(--space-4);
+        margin-top: var(--space-1);
+        padding: var(--space-4) var(--space-4);
         background: var(--surface);
         border: 1px dashed rgba(13, 62, 47, 0.28);
         color: var(--ink);
+        box-shadow: 0 10px 28px rgba(13, 40, 32, 0.1);
       }
 
       .guest-pill small {
@@ -1158,16 +1165,6 @@
           transform: translateY(12px) rotate(4deg);
         }
       }
-
-      @media (min-width: 760px) {
-        body {
-          padding: 28px 0;
-        }
-
-        .app {
-          border-radius: 4px;
-        }
-      }
     </style>
   </head>
 
@@ -1181,7 +1178,7 @@
           />
         </div>
         <div class="hero-content">
-          <div class="hero-plaque" data-aos="fade-up">
+          <div class="hero-plaque">
             <p class="hero-eyebrow">Lễ thành hôn · 23.10.2027</p>
             <h1 class="couple-names">
               <span class="line">Minh Anh</span>
@@ -1194,7 +1191,7 @@
               <span>Tháng 10</span>
             </div>
           </div>
-          <div class="guest-pill" data-aos="fade-up">
+          <div class="guest-pill">
             <small>Kính mời</small>
             <strong id="guestName">Quý khách</strong>
           </div>
