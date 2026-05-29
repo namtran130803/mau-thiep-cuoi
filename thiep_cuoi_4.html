@@ -12,9 +12,26 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Great+Vibes&family=Libre+Baskerville:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Great+Vibes&family=Libre+Baskerville:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=block"
       rel="stylesheet"
     />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        function showPage() {
+          root.classList.add("fonts-ready");
+        }
+        if (!document.fonts || !document.fonts.ready) {
+          showPage();
+          return;
+        }
+        var t = setTimeout(showPage, 5000);
+        document.fonts.ready.then(function () {
+          clearTimeout(t);
+          showPage();
+        });
+      })();
+    </script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
 
     <style>
@@ -82,6 +99,21 @@
 
       html {
         scroll-behavior: smooth;
+        background: #080808;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      html::-webkit-scrollbar {
+        display: none;
+      }
+
+      html:not(.fonts-ready) body {
+        visibility: hidden;
+      }
+
+      html.fonts-ready body {
+        visibility: visible;
       }
 
       body {
@@ -90,6 +122,12 @@
         color: var(--ink);
         font-family: var(--sans);
         line-height: 1.55;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      body::-webkit-scrollbar {
+        display: none;
       }
 
       img {
@@ -1117,11 +1155,240 @@
         font-size: var(--text-base);
         letter-spacing: 0.04em;
       }
+
+      body.cover-locked {
+        overflow: hidden;
+      }
+
+      html.cover-locked {
+        overflow: hidden;
+      }
+
+      .cover-gate {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100svh;
+        z-index: 120;
+        overflow: hidden;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .cover-gate.is-opened {
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .cover-panel {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 50%;
+        background:
+          radial-gradient(circle at 22% 16%, rgba(212, 175, 55, 0.1), transparent 36%),
+          linear-gradient(180deg, var(--surface-alt) 0%, var(--slate) 100%);
+        box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.1);
+        transition: transform 0.82s cubic-bezier(0.45, 0, 0.2, 1);
+        pointer-events: none;
+      }
+
+      .cover-panel--left {
+        left: 0;
+        border-right: 1px solid rgba(212, 175, 55, 0.14);
+      }
+
+      .cover-panel--right {
+        right: 0;
+        border-left: 1px solid rgba(212, 175, 55, 0.14);
+      }
+
+      .cover-panel__inner {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 28px;
+        text-align: center;
+        color: var(--accent);
+        pointer-events: none;
+      }
+
+      .cover-panel--left .cover-panel__inner {
+        padding-right: 52px;
+      }
+
+      .cover-panel--right .cover-panel__inner {
+        padding-left: 52px;
+      }
+
+      .cover-panel__kicker {
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .cover-panel__name {
+        margin-top: 10px;
+        font-family: var(--script);
+        font-size: clamp(42px, 11vw, 56px);
+        line-height: 1;
+        color: var(--ink);
+      }
+
+      .cover-gate.is-opening .cover-panel--left {
+        transform: translateX(-100%);
+      }
+
+      .cover-gate.is-opening .cover-panel--right {
+        transform: translateX(100%);
+      }
+
+      .cover-seal {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        z-index: 130;
+        width: 48px;
+        height: 48px;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        transition: opacity 0.22s ease, transform 0.28s ease;
+      }
+
+      .cover-seal__btn {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.38), transparent 42%),
+          linear-gradient(165deg, var(--accent-soft) 0%, var(--accent) 52%, #966a38 100%);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.36),
+          inset 0 -2px 4px rgba(0, 0, 0, 0.24),
+          0 0 0 3px rgba(26, 26, 26, 0.72),
+          0 0 0 4px rgba(212, 175, 55, 0.16),
+          0 8px 20px rgba(0, 0, 0, 0.35);
+        animation: sealBreath 2.8s ease-in-out infinite;
+      }
+
+      .cover-seal__heart {
+        width: 13px;
+        height: 13px;
+        color: rgba(255, 245, 230, 0.96);
+        filter: drop-shadow(0 0.5px 0 rgba(0, 0, 0, 0.28));
+      }
+
+      .cover-gate.is-opening .cover-seal {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.65);
+      }
+
+      .cover-gate.is-opening .cover-seal__btn {
+        animation: none;
+      }
+
+      @keyframes sealBreath {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.36),
+            inset 0 -2px 4px rgba(0, 0, 0, 0.24),
+            0 0 0 3px rgba(26, 26, 26, 0.72),
+            0 0 0 4px rgba(212, 175, 55, 0.16),
+            0 8px 20px rgba(0, 0, 0, 0.35);
+        }
+        50% {
+          transform: scale(1.035);
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.36),
+            inset 0 -2px 4px rgba(0, 0, 0, 0.24),
+            0 0 0 3px rgba(26, 26, 26, 0.82),
+            0 0 0 4px rgba(212, 175, 55, 0.22),
+            0 10px 24px rgba(212, 175, 55, 0.24);
+        }
+      }
+
+      .cover-hint {
+        position: absolute;
+        left: 50%;
+        bottom: 42px;
+        z-index: 130;
+        transform: translateX(-50%);
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+        pointer-events: none;
+        animation: hintFloat 2.2s ease-in-out infinite;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+      }
+
+      .cover-gate.is-opening .cover-hint,
+      .cover-gate.is-opened .cover-hint {
+        opacity: 0;
+        visibility: hidden;
+        animation: none;
+      }
+
+      @keyframes hintFloat {
+        0%,
+        100% {
+          opacity: 0.72;
+          transform: translateX(-50%) translateY(0);
+        }
+        50% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(-4px);
+        }
+      }
     </style>
   </head>
 
-  <body>
+  <body class="cover-locked">
     <main class="app">
+      <div
+        class="cover-gate"
+        id="coverGate"
+        role="button"
+        tabindex="0"
+        aria-label="Chạm để mở thiệp"
+      >
+        <div class="cover-panel cover-panel--left">
+          <div class="cover-panel__inner">
+            <span class="cover-panel__kicker">Cô dâu</span>
+            <span class="cover-panel__name">Minh Anh</span>
+          </div>
+        </div>
+
+        <div class="cover-panel cover-panel--right">
+          <div class="cover-panel__inner">
+            <span class="cover-panel__kicker">Chú rể</span>
+            <span class="cover-panel__name">Hoàng Nam</span>
+          </div>
+        </div>
+
+        <div class="cover-seal" aria-hidden="true">
+          <span class="cover-seal__btn">
+            <svg class="cover-seal__heart" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 20.7l-7.35-6.58C2.52 12.18 1 10.11 1 7.75 1 4.96 3.46 2.5 6.25 2.5c1.68 0 3.28.82 4.25 2.13.97-1.31 2.57-2.13 4.25-2.13 2.79 0 5.25 2.46 5.25 5.25 0 2.36-1.52 4.43-3.65 6.37L12 20.7z"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+        </div>
+
+        <p class="cover-hint">Chạm để mở thiệp</p>
+      </div>
+
       <section class="section hero" id="home">
         <div class="hero-photo">
           <img
@@ -1130,37 +1397,47 @@
           />
         </div>
         <div class="hero-content">
-          <div class="hero-top">
-            <div class="monogram" aria-hidden="true">MA<span>&amp;</span>HN</div>
-            <p class="brand-label">Lễ thành hôn</p>
-            <svg class="ornament" viewBox="0 0 160 32" fill="none" aria-hidden="true">
-              <path d="M8 16H64" stroke="currentColor" stroke-width="1" />
-              <path d="M96 16H152" stroke="currentColor" stroke-width="1" />
-              <path
-                d="M80 6C86 10 86 22 80 26C74 22 74 10 80 6Z"
-                stroke="currentColor"
-                stroke-width="1.4"
-              />
-              <path
-                d="M72 16C74 12 78 10 80 10C82 10 86 12 88 16C86 20 82 22 80 22C78 22 74 20 72 16Z"
-                fill="currentColor"
-                opacity=".35"
-              />
-            </svg>
+          <div data-aos="fade-down" data-aos-delay="0" data-aos-duration="700">
+            <div class="hero-top">
+              <div class="monogram" aria-hidden="true">MA<span>&amp;</span>HN</div>
+              <p class="brand-label">Lễ thành hôn</p>
+              <svg class="ornament" viewBox="0 0 160 32" fill="none" aria-hidden="true">
+                <path d="M8 16H64" stroke="currentColor" stroke-width="1" />
+                <path d="M96 16H152" stroke="currentColor" stroke-width="1" />
+                <path
+                  d="M80 6C86 10 86 22 80 26C74 22 74 10 80 6Z"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                />
+                <path
+                  d="M72 16C74 12 78 10 80 10C82 10 86 12 88 16C86 20 82 22 80 22C78 22 74 20 72 16Z"
+                  fill="currentColor"
+                  opacity=".35"
+                />
+              </svg>
+            </div>
           </div>
 
-          <div class="invite-for" data-aos="fade-up">
+          <div class="invite-for" data-aos="fade-up" data-aos-delay="120" data-aos-duration="700">
             <small>Trân trọng kính mời</small>
             <strong id="guestName">Quý khách</strong>
           </div>
 
-          <div class="hero-bottom" data-aos="fade-up">
-            <h1 class="couple-names">
-              <span>Minh Anh</span>
-              <span>&amp;</span>
-              <span>Hoàng Nam</span>
-            </h1>
-            <div class="hero-date" aria-label="Ngày cưới">
+          <div class="hero-bottom">
+            <div data-aos="fade-up" data-aos-delay="240" data-aos-duration="700">
+              <h1 class="couple-names">
+                <span>Minh Anh</span>
+                <span>&amp;</span>
+                <span>Hoàng Nam</span>
+              </h1>
+            </div>
+            <div
+              class="hero-date"
+              data-aos="fade-up"
+              data-aos-delay="360"
+              data-aos-duration="700"
+              aria-label="Ngày cưới"
+            >
               <span>Thứ bảy</span>
               <b>23</b>
               <span>10.2027</span>
@@ -1522,6 +1799,62 @@
         guestName.textContent = decodeURIComponent(guest.replace(/\+/g, " "));
       }
 
+      const coverGate = document.getElementById("coverGate");
+      const appRoot = document.querySelector(".app");
+      let coverOpened = false;
+      let aosReady = false;
+
+      const COVER_PANEL_MS = 820;
+
+      function initPageAnimations() {
+        if (aosReady) return;
+        aosReady = true;
+
+        AOS.init({
+          once: true,
+          mirror: false,
+          duration: 700,
+          offset: 80,
+          easing: "ease-out-cubic",
+        });
+
+        loadWishes();
+      }
+
+      function playContentAnimations() {
+        appRoot.classList.add("is-content-ready");
+        initPageAnimations();
+
+        window.requestAnimationFrame(() => {
+          AOS.refresh();
+        });
+      }
+
+      function openCover() {
+        if (coverOpened) return;
+        coverOpened = true;
+
+        playContentAnimations();
+        coverGate.classList.add("is-opening");
+
+        window.setTimeout(() => {
+          coverGate.classList.add("is-opened");
+          coverGate.setAttribute("aria-hidden", "true");
+          document.body.classList.remove("cover-locked");
+          document.documentElement.classList.remove("cover-locked");
+        }, COVER_PANEL_MS);
+      }
+
+      coverGate.addEventListener("click", openCover);
+      coverGate.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openCover();
+        }
+      });
+
+      document.documentElement.classList.add("cover-locked");
+
       const giftModal = document.getElementById("giftModal");
       const openGiftModal = document.getElementById("openGiftModal");
       const closeGiftModal = document.getElementById("closeGiftModal");
@@ -1619,15 +1952,6 @@
         uploadIcon.style.display = "";
       });
 
-      AOS.init({
-        once: false,
-        mirror: true,
-        duration: 800,
-        offset: 100,
-        easing: "ease-out-cubic",
-      });
-
-      loadWishes();
     </script>
   </body>
 </html>
