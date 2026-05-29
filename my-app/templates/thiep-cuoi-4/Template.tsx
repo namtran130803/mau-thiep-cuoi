@@ -67,10 +67,12 @@ function ThiepCuoi4Content({ data, derived }: InviteTemplateProps) {
             </div>
           </div>
 
-          <div className="invite-for" data-aos="fade-up" data-aos-delay="120" data-aos-duration="700">
-            <small>Trân trọng kính mời</small>
-            <strong>{guestName}</strong>
-          </div>
+          {guestName ? (
+            <div className="invite-for" data-aos="fade-up" data-aos-delay="120" data-aos-duration="700">
+              <small>Trân trọng kính mời</small>
+              <strong>{guestName}</strong>
+            </div>
+          ) : null}
 
           <div className="hero-bottom">
             <div data-aos="fade-up" data-aos-delay="240" data-aos-duration="700">
@@ -241,8 +243,8 @@ function ThiepCuoi4Content({ data, derived }: InviteTemplateProps) {
           <Ornament />
         </div>
         <div className="album-masonry" data-aos="fade-up">
-          {derived.galleryItems.map((photo) => (
-            <figure key={photo.src} className="album-item">
+          {derived.galleryItems.map((photo, index) => (
+            <figure key={`gallery-${index}-${photo.src}`} className="album-item">
               <img src={photo.src} alt={photo.alt} />
             </figure>
           ))}

@@ -87,6 +87,7 @@ export type InviteTemplateProps = {
   data: InviteData;
   derived: DerivedInviteData;
   slug: string;
+  showGuestInvite?: boolean;
 };
 
 export type Wish = {

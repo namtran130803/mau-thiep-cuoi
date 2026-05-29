@@ -12,6 +12,14 @@ export default function InviteTemplateRenderer({
   data,
   derived,
   slug,
+  showGuestInvite,
 }: InviteTemplateRendererProps) {
-  return <Component data={data} derived={derived} slug={slug} />;
+  return (
+    <Component
+      data={data}
+      derived={derived}
+      slug={slug}
+      showGuestInvite={showGuestInvite}
+    />
+  );
 }

@@ -27,6 +27,7 @@ type UseInviteRuntimeOptions = {
   derived: DerivedInviteData;
   aosOffset?: number;
   showWishAlert?: boolean;
+  showGuestInvite?: boolean;
 };
 
 function unlockDocumentScroll() {
@@ -53,8 +54,9 @@ export function useInviteRuntime({
   derived,
   aosOffset = 0,
   showWishAlert = true,
+  showGuestInvite = true,
 }: UseInviteRuntimeOptions) {
-  const guestName = useGuestName();
+  const guestName = useGuestName("Quý khách", showGuestInvite);
 
   const [coverState, setCoverState] = useState<CoverState>("closed");
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);

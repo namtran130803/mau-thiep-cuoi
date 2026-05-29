@@ -58,10 +58,12 @@ function ThiepCuoi3Content({ data, derived }: InviteTemplateProps) {
               <span>{derived.calendarMonthLabel}</span>
             </div>
           </div>
-          <div className="guest-pill" data-aos="fade-up" data-aos-delay="120" data-aos-duration="700">
-            <small>Kính mời</small>
-            <strong>{guestName}</strong>
-          </div>
+          {guestName ? (
+            <div className="guest-pill" data-aos="fade-up" data-aos-delay="120" data-aos-duration="700">
+              <small>Kính mời</small>
+              <strong>{guestName}</strong>
+            </div>
+          ) : null}
         </div>
       </section>
 
@@ -200,12 +202,12 @@ function ThiepCuoi3Content({ data, derived }: InviteTemplateProps) {
         <LeafFall className="leaf-fall is-2" />
         <div className="section-head" data-aos="fade-up">
           <div className="section-title">Ảnh Cưới</div>
-          <div className="section-kicker">Album kỷ niệm</div>
+          <div className="section-kicker">Bộ ảnh kỷ niệm</div>
           <SectionDivider />
         </div>
         <div className="album-masonry" data-aos="fade-up">
-          {derived.galleryItems.map((photo) => (
-            <figure key={photo.src} className="album-item">
+          {derived.galleryItems.map((photo, index) => (
+            <figure key={`gallery-${index}-${photo.src}`} className="album-item">
               <img src={photo.src} alt={photo.alt} />
             </figure>
           ))}

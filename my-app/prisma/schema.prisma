@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Order {
+  id               String       @id @default(cuid())
+  email            String
+  packageType      String
+  guestNameService Boolean      @default(false)
+  status           String       @default("draft")
+  totalAmount      Int
+  editToken        String       @unique @default(cuid())
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  invitations      Invitation[]
+  payment          Payment?
+}
+
+model Invitation {
+  id           String   @id @default(cuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  templateSlug String
+  slug         String   @unique
+  label        String?
+  data         Json
+  status       String   @default("demo")
+  createdAt    DateTime @default(now())
+  wishes       Wish[]
+}
+
+model Payment {
+  id        String    @id @default(cuid())
+  orderId   String    @unique
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sepayRef  String?
+  amount    Int
+  status    String    @default("pending")
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Wish {
+  id           String     @id @default(cuid())
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  name         String
+  message      String
+  attend       String
+  createdAt    DateTime   @default(now())
+}

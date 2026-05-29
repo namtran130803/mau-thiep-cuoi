@@ -32,6 +32,7 @@ export default function InviteShell({
   scopeClass,
   aosOffset = 0,
   showWishAlert = true,
+  showGuestInvite = true,
   qrBoxClassName = "gift-qr",
   data,
   derived,
@@ -44,6 +45,7 @@ export default function InviteShell({
     derived,
     aosOffset,
     showWishAlert,
+    showGuestInvite,
   });
 
   return (

@@ -1,0 +1,57 @@
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import "@/app/(invite)/invite.css";
+import "@/templates/thiep-cuoi-1/styles.css";
+import "@/templates/thiep-cuoi-2/styles.css";
+import "@/templates/thiep-cuoi-3/styles.css";
+import "@/templates/thiep-cuoi-4/styles.css";
+import DemoBanner from "@/components/site/DemoBanner";
+import InviteTemplateRenderer from "@/components/invite/InviteTemplateRenderer";
+import { getInvitationById, getInvitationBySlug } from "@/lib/actions/invitation";
+import { getCheckoutOrderId } from "@/lib/checkout/session";
+import { deriveInviteData } from "@/lib/invite/derive";
+import { getInviteTemplate } from "@/lib/templates/registry";
+import type { InviteData } from "@/lib/invite/types";
+
+type DemoPageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function DemoPage({ params }: DemoPageProps) {
+  const { id } = await params;
+  const invitation = await getInvitationBySlug(id) ?? await getInvitationById(id);
+
+  if (!invitation) {
+    notFound();
+  }
+
+  const template = getInviteTemplate(invitation.templateSlug);
+  if (!template) {
+    notFound();
+  }
+
+  const data = invitation.data as InviteData;
+  const derived = deriveInviteData(data, invitation.slug);
+  const { Component } = template;
+  const checkoutOrderId = await getCheckoutOrderId();
+  const payUrl = checkoutOrderId === invitation.orderId
+    ? `/thanh-toan/${checkoutOrderId}`
+    : null;
+
+  return (
+    <>
+      <DemoBanner payUrl={payUrl} />
+      <div className="invite-layout invite-layout--demo">
+        <Suspense fallback={null}>
+          <InviteTemplateRenderer
+            Component={Component}
+            data={data}
+            derived={derived}
+            slug={invitation.slug}
+            showGuestInvite={invitation.order.guestNameService}
+          />
+        </Suspense>
+      </div>
+    </>
+  );
+}
