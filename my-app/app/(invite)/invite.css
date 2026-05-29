@@ -1,0 +1,49 @@
+.invite-layout {
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+/* Ẩn mọi thanh cuộn khi xem thiệp (html/body + phần tử con) */
+html:has(.invite-layout),
+html:has(.invite-layout) body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html:has(.invite-layout)::-webkit-scrollbar,
+html:has(.invite-layout) body::-webkit-scrollbar {
+  display: none;
+}
+
+.invite-layout,
+.invite-layout * {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.invite-layout *::-webkit-scrollbar {
+  display: none;
+}
+
+/* Chưa mở thiệp: khóa cuộn toàn trang (giống body.cover-locked bản HTML gốc) */
+html.invite-cover-locked,
+html.invite-cover-locked body,
+html:has(.invite-layout .cover-locked),
+html:has(.invite-layout .cover-locked) body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+html.invite-cover-locked body,
+html:has(.invite-layout .cover-locked) body {
+  position: fixed;
+  width: 100%;
+}
+
+.invite-layout:has(.cover-locked) {
+  overflow: hidden;
+  height: 100dvh;
+  height: 100svh;
+}

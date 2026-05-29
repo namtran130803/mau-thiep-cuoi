@@ -1,0 +1,15 @@
+{
+  "extends": "./my-app/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "./my-app",
+    "typeRoots": ["./my-app/node_modules/@types"]
+  },
+  "include": [
+    "my-app/next-env.d.ts",
+    "my-app/**/*.ts",
+    "my-app/**/*.tsx",
+    "my-app/.next/types/**/*.ts",
+    "my-app/.next/dev/types/**/*.ts"
+  ],
+  "exclude": ["node_modules", "my-app/node_modules"]
+}
