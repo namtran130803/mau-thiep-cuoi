@@ -5,6 +5,38 @@
   background: transparent;
 }
 
+/* Reset style site.css còn sót sau client navigation (body/.section/.hero) */
+html:has(.invite-layout),
+html:has(.invite-layout) body {
+  background: transparent;
+  color: inherit;
+  font-family: unset;
+  font-size: unset;
+  line-height: unset;
+  -webkit-font-smoothing: auto;
+}
+
+/* Màu nền html/body khớp template khi fonts-ready đang ẩn scope */
+html:has(.invite-layout .thiep-cuoi-1),
+html:has(.invite-layout .thiep-cuoi-1) body {
+  background: #f4eadf;
+}
+
+html:has(.invite-layout .thiep-cuoi-2),
+html:has(.invite-layout .thiep-cuoi-2) body {
+  background: #210302;
+}
+
+html:has(.invite-layout .thiep-cuoi-3),
+html:has(.invite-layout .thiep-cuoi-3) body {
+  background: #d9d4c8;
+}
+
+html:has(.invite-layout .thiep-cuoi-4),
+html:has(.invite-layout .thiep-cuoi-4) body {
+  background: #080808;
+}
+
 /* Ẩn mọi thanh cuộn khi xem thiệp (html/body + phần tử con) */
 html:has(.invite-layout),
 html:has(.invite-layout) body {
