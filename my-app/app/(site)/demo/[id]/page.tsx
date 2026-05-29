@@ -1,10 +1,6 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import "@/app/(invite)/invite.css";
-import "@/templates/thiep-cuoi-1/styles.css";
-import "@/templates/thiep-cuoi-2/styles.css";
-import "@/templates/thiep-cuoi-3/styles.css";
-import "@/templates/thiep-cuoi-4/styles.css";
 import DemoBanner from "@/components/site/DemoBanner";
 import InviteTemplateRenderer from "@/components/invite/InviteTemplateRenderer";
 import { getInvitationById, getInvitationBySlug } from "@/lib/actions/invitation";

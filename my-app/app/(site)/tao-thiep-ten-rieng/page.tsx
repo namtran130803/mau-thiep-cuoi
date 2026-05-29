@@ -21,7 +21,7 @@ export default function TaoThiepTenRiengPage() {
           </p>
         </SiteContainer>
       </div>
-      <div className="page-body">
+      <div className="page-body page-body--fill">
         <SiteContainer>
           <GuestLinkGenerator />
         </SiteContainer>
