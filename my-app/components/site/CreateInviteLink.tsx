@@ -29,11 +29,14 @@ export default function CreateInviteLink({ href, ...props }: CreateInviteLinkPro
 
       const restored = await restoreCheckoutSession();
       if (restored) {
-        if (restored.hasDemo && restored.invitationId && restored.demoUrl) {
+        if (restored.hasDemo && restored.invitations.length > 0) {
           saveCheckoutSession({
             orderId: restored.orderId,
-            invitationId: restored.invitationId,
-            demoUrl: restored.demoUrl,
+            invitations: restored.invitations.map((invitation) => ({
+              invitationId: invitation.invitationId,
+              demoUrl: invitation.demoUrl,
+              label: invitation.label,
+            })),
           });
         }
         setTargetHref("/tao-thiep");

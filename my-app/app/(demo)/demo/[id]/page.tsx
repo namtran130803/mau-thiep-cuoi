@@ -20,6 +20,10 @@ export default async function DemoPage({ params }: DemoPageProps) {
     notFound();
   }
 
+  if (!invitation.order) {
+    notFound();
+  }
+
   const template = getInviteTemplate(invitation.templateSlug);
   if (!template) {
     notFound();

@@ -95,7 +95,8 @@ export function buildInviteSlug(groomName: string, brideName: string): string {
   return `${groom}-${bride}`;
 }
 
-export function buildPaymentReference(slug: string): string {
-  const normalizedSlug = slug.toLowerCase().replace(/[^a-z0-9]/g, "");
-  return `gw${normalizedSlug}`;
+export function buildPaymentReference(orderId: string): string {
+  const cleanId = orderId.replace(/\D/g, "");
+  const randomDigits = Math.floor(10000000 + Math.random() * 90000000).toString();
+  return `GW${cleanId}${randomDigits}`;
 }

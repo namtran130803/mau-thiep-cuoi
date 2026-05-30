@@ -29,8 +29,7 @@ function extractSepayRef(payload: SepayWebhookPayload): string | null {
   ]
     .filter(Boolean)
     .join(" ");
-  // Matches the bank-safe payment reference, e.g. gwtrongnambichngoc.
-  const match = text.match(/gw[a-z0-9]+/i);
+  const match = text.match(/GW\d+/);
   return match?.[0] ?? null;
 }
 
@@ -51,13 +50,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Không tìm thấy mã tham chiếu" }, { status: 400 });
   }
 
-  const payment = await prisma.payment.findFirst({ where: { sepayRef: ref } });
-  if (!payment) {
+  const order = await prisma.order.findUnique({ where: { sepayRef: ref } });
+  if (!order) {
     return NextResponse.json({ error: "Không tìm thấy đơn hàng" }, { status: 404 });
   }
 
   try {
-    await confirmPayment(payment.orderId);
+    await confirmPayment(order.id);
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("[sepay:webhook]", error);

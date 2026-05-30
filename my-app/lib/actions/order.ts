@@ -1,10 +1,12 @@
 "use server";
 
 import { prisma } from "@/lib/db/prisma";
+import { formatDbId, parseDbId } from "@/lib/db/id";
 import { setCheckoutOrderId } from "@/lib/checkout/session";
 import { getSiteUrl, sendEmail } from "@/lib/email/smtp";
 import { calculateTotalAmount, type PackageType } from "@/lib/pricing";
 import { createOrderSchema } from "@/lib/validation/invite";
+import { buildPaymentReference } from "@/lib/slug";
 
 export async function createOrder(input: {
   email: string;
@@ -27,17 +29,26 @@ export async function createOrder(input: {
     },
   });
 
-  await setCheckoutOrderId(order.id);
+  const orderIdText = formatDbId(order.id);
+  const sepayRef = buildPaymentReference(orderIdText);
+
+  await prisma.order.update({
+    where: { id: order.id },
+    data: { sepayRef },
+  });
+
+  await setCheckoutOrderId(orderIdText);
 
   return {
-    orderId: order.id,
+    orderId: orderIdText,
+    sepayRef,
     totalAmount: order.totalAmount,
   };
 }
 
 export async function updateOrderEmail(orderId: string, email: string) {
   await prisma.order.update({
-    where: { id: orderId },
+    where: { id: parseDbId(orderId) },
     data: { email },
   });
 }
@@ -56,7 +67,7 @@ export async function updateOrderDraft(
   );
 
   await prisma.order.update({
-    where: { id: orderId },
+    where: { id: parseDbId(orderId) },
     data: {
       email: input.email,
       packageType: input.packageType,
@@ -68,14 +79,14 @@ export async function updateOrderDraft(
 
 export async function getOrderById(orderId: string) {
   return prisma.order.findUnique({
-    where: { id: orderId },
+    where: { id: parseDbId(orderId) },
     include: { invitations: true, payment: true },
   });
 }
 
 export async function sendPublishedEmail(orderId: string) {
   const order = await prisma.order.findUnique({
-    where: { id: orderId },
+    where: { id: parseDbId(orderId) },
     include: { invitations: true },
   });
   if (!order) return;
@@ -83,7 +94,10 @@ export async function sendPublishedEmail(orderId: string) {
   const siteUrl = getSiteUrl();
   const links = order.invitations
     .filter((inv) => inv.status === "active")
-    .map((inv) => `<li><a href="${siteUrl}/${inv.slug}">${siteUrl}/${inv.slug}</a></li>`)
+    .map((inv, index) => {
+      const label = inv.label?.trim() || `Thiệp ${index + 1}`;
+      return `<li><strong>${label}:</strong> <a href="${siteUrl}/${inv.slug}">${siteUrl}/${inv.slug}</a></li>`;
+    })
     .join("");
 
   const guestLinkUrl = order.guestNameService ? `${siteUrl}/tao-thiep-ten-rieng` : null;

@@ -7,6 +7,7 @@ import { reclaimCheckoutSession } from "@/lib/actions/checkout";
 import { createPayment } from "@/lib/actions/payment";
 import {
   clearCheckoutSession,
+  getCheckoutSessionInvitations,
   loadCheckoutSession,
 } from "@/lib/checkout/client-session";
 import { formatVnd } from "@/lib/pricing";
@@ -15,6 +16,7 @@ import { WIZARD_STORAGE_KEY, removeLocalJson } from "@/lib/storage/local";
 type PaymentClientProps = {
   orderId: string;
   amount: number;
+  sepayRef: string;
   adminTransferInfo: {
     accountName: string;
     accountNumber: string;
@@ -22,12 +24,13 @@ type PaymentClientProps = {
     content: string;
   };
   sepayQrUrl: string;
-  initialInvitations: Array<{ id: string; slug: string; status: string }>;
+  initialInvitations: Array<{ id: string; label: string | null; slug: string; status: string }>;
 };
 
 export default function PaymentClient({
   orderId,
   amount,
+  sepayRef,
   adminTransferInfo,
   sepayQrUrl,
   initialInvitations,
@@ -45,14 +48,21 @@ export default function PaymentClient({
     async function initPayment() {
       try {
         const session = loadCheckoutSession();
-        if (session?.orderId === orderId && session.invitationId) {
+        const sessionInvitation = getCheckoutSessionInvitations(session)[0];
+        if (session?.orderId === orderId && sessionInvitation) {
           await reclaimCheckoutSession({
             orderId: session.orderId,
-            invitationId: session.invitationId,
+            invitationId: sessionInvitation.invitationId,
           });
         }
         await createPayment(orderId);
-        if (active) setInitState("ready");
+        if (active) {
+          setInitState("ready");
+          const ref = adminTransferInfo.content;
+          if (ref.startsWith("GW")) {
+            window.history.replaceState(null, "", `/thanh-toan/${ref}`);
+          }
+        }
       } catch (e) {
         if (!active) return;
         setInitError(e instanceof Error ? e.message : "Phiên đặt hàng không hợp lệ.");
@@ -71,10 +81,10 @@ export default function PaymentClient({
 
     async function poll() {
       try {
-        const res = await fetch(`/api/payment-status/${orderId}`);
+        const res = await fetch(`/api/payment-status/${adminTransferInfo.content}`);
         const result = (await res.json()) as {
           status: string;
-          invitations?: Array<{ id: string; slug: string; status: string }>;
+          invitations?: Array<{ id: string; label: string | null; slug: string; status: string }>;
         };
 
         if (!active) return;
@@ -166,6 +176,7 @@ export default function PaymentClient({
           {invitations.map((inv) => (
             <li key={inv.id} className="payment-link-item">
               <a href={`/${inv.slug}`}>
+                {inv.label ? `${inv.label}: ` : ""}
                 {typeof window !== "undefined" ? window.location.origin : ""}/{inv.slug}
               </a>
               <button
@@ -223,8 +234,6 @@ export default function PaymentClient({
           <span className="payment-transfer-value">{adminTransferInfo.content}</span>
         </div>
       </div>
-
-      
     </div>
   );
 }

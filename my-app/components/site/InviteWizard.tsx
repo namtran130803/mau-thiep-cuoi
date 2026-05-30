@@ -10,72 +10,259 @@ import {
   CreditCard,
   Eye,
   ExternalLink,
-  Users,
-  UserRound,
+  Pencil,
   Sparkles,
+  UserRound,
+  Users,
 } from "lucide-react";
 import BankAccountFields from "@/components/site/BankAccountFields";
 import ImageUploadField from "@/components/site/ImageUploadField";
-import { createOrder, updateOrderDraft } from "@/lib/actions/order";
 import { restoreCheckoutSession } from "@/lib/actions/checkout";
 import { getInvitationById, saveInvitation } from "@/lib/actions/invitation";
+import { createOrder, updateOrderDraft } from "@/lib/actions/order";
 import {
+  getCheckoutSessionInvitations,
   loadCheckoutSession,
   saveCheckoutSession,
 } from "@/lib/checkout/client-session";
+import { createEmptyInviteFormData } from "@/lib/form/default-invite-data";
 import {
   PACKAGE_STORAGE_KEY,
   WIZARD_STORAGE_KEY,
   readLocalJson,
   writeLocalJson,
 } from "@/lib/storage/local";
-import { createEmptyInviteFormData } from "@/lib/form/default-invite-data";
-import { listInviteTemplates } from "@/lib/templates/registry";
 import {
-  PACKAGES,
   GUEST_NAME_SERVICE_PRICE,
+  PACKAGES,
   formatVnd,
   type PackageType,
 } from "@/lib/pricing";
+import { listInviteTemplates } from "@/lib/templates/registry";
 import type { InviteFormData } from "@/lib/validation/invite";
 
 const STEPS = ["Gói & mẫu", "Tiệc cưới", "Gia đình", "Ảnh thiệp", "Tài khoản"];
+const SLOT_LABELS = ["Thiệp 1", "Thiệp 2"] as const;
 
-type WizardDraft = {
+type InviteSlot = {
+  label: string;
+  templateSlug: string;
+  formData: InviteFormData;
+  invitationId?: string;
+  demoUrl?: string;
+};
+
+type LegacyWizardDraft = {
   packageType: PackageType;
   guestNameService: boolean;
   templateSlug: string;
   formData: InviteFormData;
 };
 
-type InviteWizardProps = {
-  initialDraft?: Partial<WizardDraft>;
-  queryOverrides?: Partial<Pick<WizardDraft, "packageType" | "templateSlug">>;
-};
-
-function loadDraft(): WizardDraft | null {
-  return readLocalJson<WizardDraft>(WIZARD_STORAGE_KEY);
-}
-
-function saveDraft(draft: WizardDraft) {
-  writeLocalJson(WIZARD_STORAGE_KEY, draft);
-}
-
-type SavedMeta = {
+type WizardDraft = {
   packageType: PackageType;
   guestNameService: boolean;
-  templateSlug: string;
+  activeSlotIndex: number;
+  orderEmail: string;
+  slots: InviteSlot[];
+  sepayRef?: string;
 };
 
-function applyQueryOverrides(
-  overrides: InviteWizardProps["queryOverrides"],
-  apply: {
-    setPackageType: (value: PackageType) => void;
-    setTemplateSlug: (value: string) => void;
-  },
-) {
-  if (overrides?.packageType) apply.setPackageType(overrides.packageType);
-  if (overrides?.templateSlug) apply.setTemplateSlug(overrides.templateSlug);
+type InviteWizardProps = {
+  initialDraft?: Partial<WizardDraft & LegacyWizardDraft>;
+  queryOverrides?: Partial<Pick<WizardDraft, "packageType">> & {
+    templateSlug?: string;
+  };
+};
+
+function isDualPackage(packageType: PackageType): boolean {
+  return packageType !== "single";
+}
+
+function getSlotCount(packageType: PackageType): number {
+  return isDualPackage(packageType) ? 2 : 1;
+}
+
+function cloneFormData(data: InviteFormData): InviteFormData {
+  return structuredClone(data);
+}
+
+function createSlot(
+  index: number,
+  templateSlug: string,
+  formData: InviteFormData = createEmptyInviteFormData(),
+): InviteSlot {
+  return {
+    label: SLOT_LABELS[index] ?? `Thiệp ${index + 1}`,
+    templateSlug,
+    formData,
+  };
+}
+
+function normalizeSlotsForPackage(
+  packageType: PackageType,
+  slots: InviteSlot[],
+  fallbackTemplate: string,
+): InviteSlot[] {
+  const count = getSlotCount(packageType);
+  const first =
+    slots[0] ??
+    createSlot(0, fallbackTemplate, createEmptyInviteFormData());
+  const normalized: InviteSlot[] = [
+    {
+      ...first,
+      label: SLOT_LABELS[0],
+      templateSlug: first.templateSlug || fallbackTemplate,
+      formData: cloneFormData(first.formData),
+    },
+  ];
+
+  if (count === 2) {
+    const source = slots[1] ?? first;
+    normalized.push({
+      ...source,
+      label: SLOT_LABELS[1],
+      templateSlug:
+        packageType === "dual_same"
+          ? normalized[0].templateSlug
+          : source.templateSlug || normalized[0].templateSlug,
+      formData: cloneFormData(source.formData),
+      invitationId: slots[1]?.invitationId,
+      demoUrl: slots[1]?.demoUrl,
+    });
+  }
+
+  return normalized;
+}
+
+function createInitialSlots(
+  initialDraft: InviteWizardProps["initialDraft"],
+  fallbackTemplate: string,
+): InviteSlot[] {
+  if (initialDraft?.slots?.length) {
+    return initialDraft.slots;
+  }
+
+  return [
+    createSlot(
+      0,
+      initialDraft?.templateSlug ?? fallbackTemplate,
+      initialDraft?.formData ?? createEmptyInviteFormData(),
+    ),
+  ];
+}
+
+function resolveTemplateForSlot(
+  packageType: PackageType,
+  slots: InviteSlot[],
+  slotIndex: number,
+): string {
+  return packageType === "dual_same"
+    ? slots[0]?.templateSlug
+    : slots[slotIndex]?.templateSlug;
+}
+
+function buildCheckoutInvitations(slots: InviteSlot[]) {
+  return slots
+    .filter((slot) => slot.invitationId && slot.demoUrl)
+    .map((slot) => ({
+      invitationId: slot.invitationId as string,
+      demoUrl: slot.demoUrl as string,
+      label: slot.label,
+    }));
+}
+
+function getFirstMissingSlotIndex(slots: InviteSlot[]): number {
+  return slots.findIndex((slot) => !slot.demoUrl);
+}
+
+function getCompletedCount(slots: InviteSlot[]): number {
+  return slots.filter((slot) => Boolean(slot.demoUrl)).length;
+}
+
+function validateSlotStep(
+  slot: InviteSlot,
+  step: number,
+  orderEmail: string,
+): string | null {
+  const formData = slot.formData;
+
+  switch (step) {
+    case 0:
+      if (!slot.templateSlug) return "Vui lòng chọn mẫu thiệp";
+      return null;
+    case 1:
+      if (!formData.groomName.trim()) return "Vui lòng nhập tên chú rể";
+      if (!formData.brideName.trim()) return "Vui lòng nhập tên cô dâu";
+      if (!formData.weddingAt) return "Vui lòng chọn thời gian";
+      if (!formData.venue.name.trim()) return "Vui lòng nhập địa điểm";
+      if (!formData.venue.address.trim())
+        return "Vui lòng nhập địa chỉ tiệc cưới";
+      return null;
+    case 2:
+      if (!formData.groomFamily.fatherName.trim())
+        return "Vui lòng nhập tên bố nhà trai";
+      if (!formData.groomFamily.motherName.trim())
+        return "Vui lòng nhập tên mẹ nhà trai";
+      if (!formData.groomFamily.address.trim())
+        return "Vui lòng nhập địa chỉ nhà trai";
+      if (!formData.brideFamily.fatherName.trim())
+        return "Vui lòng nhập tên bố nhà gái";
+      if (!formData.brideFamily.motherName.trim())
+        return "Vui lòng nhập tên mẹ nhà gái";
+      if (!formData.brideFamily.address.trim())
+        return "Vui lòng nhập địa chỉ nhà gái";
+      return null;
+    case 3:
+      if (!formData.images.hero) return "Vui lòng tải lên ảnh bìa";
+      if (!formData.images.thankYou) return "Vui lòng tải lên ảnh kết thiệp";
+      return null;
+    case 4:
+      if (!formData.bankAccount.accountNumber.trim())
+        return "Vui lòng nhập số tài khoản";
+      if (!formData.bankAccount.accountName.trim())
+        return "Vui lòng nhập tên chủ tài khoản";
+      if (!formData.bankAccount.bankBin.trim())
+        return "Vui lòng chọn ngân hàng";
+      if (!orderEmail.trim()) return "Vui lòng nhập email nhận link chính thức";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(orderEmail))
+        return "Email không hợp lệ";
+      return null;
+    default:
+      return null;
+  }
+}
+
+function validateTemplateStep(
+  packageType: PackageType,
+  slots: InviteSlot[],
+): string | null {
+  if (!slots[0]?.templateSlug) return "Vui lòng chọn mẫu thiệp";
+  if (packageType === "dual_diff" && !slots[1]?.templateSlug) {
+    return "Vui lòng chọn mẫu cho thiệp 2";
+  }
+  return null;
+}
+
+function getSlotStatus(slot: InviteSlot, isActive: boolean): string {
+  if (slot.demoUrl) return "Đã tạo xem trước";
+  return isActive ? "Đang sửa" : "Còn thiếu";
+}
+
+function getSlotStatusClass(slot: InviteSlot, isActive: boolean): string {
+  if (slot.demoUrl) return " is-done";
+  return isActive ? " is-editing" : "";
+}
+
+function getLegacyDraftSlots(
+  draft: WizardDraft | LegacyWizardDraft | null,
+): InviteSlot[] | null {
+  if (!draft) return null;
+  if ("slots" in draft && Array.isArray(draft.slots)) return draft.slots;
+  if ("templateSlug" in draft && "formData" in draft) {
+    return [createSlot(0, draft.templateSlug, draft.formData)];
+  }
+  return null;
 }
 
 export default function InviteWizard({
@@ -83,124 +270,144 @@ export default function InviteWizard({
   queryOverrides,
 }: InviteWizardProps) {
   const templates = useMemo(() => listInviteTemplates(), []);
+  const fallbackTemplate = templates[0]?.slug ?? "thiep-cuoi-1";
+  const initialPackageType = initialDraft?.packageType ?? "single";
+  const initialSlots = normalizeSlotsForPackage(
+    initialPackageType,
+    createInitialSlots(initialDraft, fallbackTemplate),
+    fallbackTemplate,
+  );
 
+  const [hydrated, setHydrated] = useState(false);
   const [step, setStep] = useState(0);
+  const [activeSlotIndex, setActiveSlotIndex] = useState(
+    initialDraft?.activeSlotIndex ?? 0,
+  );
   const [submitting, setSubmitting] = useState(false);
   const [orderId, setOrderId] = useState("");
-  const [invitationId, setInvitationId] = useState("");
-  const [demoUrl, setDemoUrl] = useState("");
-  const [isComplete, setIsComplete] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [sepayRef, setSepayRef] = useState("");
+  const [copied, setCopied] = useState("");
   const [toast, setToast] = useState("");
 
   const [packageType, setPackageType] = useState<PackageType>(
-    initialDraft?.packageType ?? "single",
+    initialPackageType,
   );
   const [guestNameService, setGuestNameService] = useState(
     initialDraft?.guestNameService ?? false,
   );
-  const [templateSlug, setTemplateSlug] = useState(
-    initialDraft?.templateSlug ?? templates[0]?.slug ?? "thiep-cuoi-1",
+  const [slots, setSlots] = useState<InviteSlot[]>(initialSlots);
+  const [orderEmail, setOrderEmail] = useState(
+    initialDraft?.orderEmail ??
+      initialSlots[0]?.formData.wishNotificationEmail ??
+      "",
   );
-  const [formData, setFormData] = useState<InviteFormData>(
-    initialDraft?.formData ?? createEmptyInviteFormData(),
-  );
-  const [savedMeta, setSavedMeta] = useState<SavedMeta | null>(null);
+
+  const activeSlot = slots[activeSlotIndex] ?? slots[0];
+  const activeSlotNumber = activeSlotIndex + 1;
+  const isDual = isDualPackage(packageType);
+  const completedCount = getCompletedCount(slots);
+  const canPay = completedCount >= getSlotCount(packageType);
+  const progressPct = ((step + 1) / STEPS.length) * 100;
 
   useEffect(() => {
     async function hydrate() {
-      let checkout = loadCheckoutSession();
+      const draft = readLocalJson<WizardDraft | LegacyWizardDraft>(
+        WIZARD_STORAGE_KEY,
+      );
+      let nextPackageType = draft?.packageType ?? packageType;
+      let nextGuestNameService = draft?.guestNameService ?? guestNameService;
+      let nextSlots =
+        getLegacyDraftSlots(draft) ??
+        normalizeSlotsForPackage(packageType, slots, fallbackTemplate);
+      const nextActiveSlotIndex =
+        "activeSlotIndex" in (draft ?? {})
+          ? (draft as WizardDraft).activeSlotIndex
+          : activeSlotIndex;
+      let nextOrderEmail =
+        ("orderEmail" in (draft ?? {}) ? (draft as WizardDraft).orderEmail : "") ||
+        nextSlots[0]?.formData.wishNotificationEmail ||
+        orderEmail;
+      let nextOrderId = orderId;
+      let nextSepayRef = draft && "sepayRef" in draft ? draft.sepayRef ?? "" : "";
 
-      if (!checkout) {
-        const restored = await restoreCheckoutSession();
-        if (restored?.hasDemo && restored.invitationId && restored.demoUrl) {
-          checkout = {
+      const checkout = loadCheckoutSession();
+      const restored = await restoreCheckoutSession();
+
+      if (restored) {
+        nextOrderId = restored.orderId;
+        nextPackageType = restored.packageType;
+        nextGuestNameService = restored.guestNameService;
+        nextOrderEmail = restored.email;
+
+        if (restored.invitations.length > 0) {
+          nextSlots = restored.invitations.map((invitation, index) => ({
+            label: invitation.label || SLOT_LABELS[index] || `Thiệp ${index + 1}`,
+            templateSlug: invitation.templateSlug,
+            formData: invitation.formData as InviteFormData,
+            invitationId: invitation.invitationId,
+            demoUrl: invitation.demoUrl,
+          }));
+          saveCheckoutSession({
             orderId: restored.orderId,
-            invitationId: restored.invitationId,
-            demoUrl: restored.demoUrl,
-          };
-          saveCheckoutSession(checkout);
-        } else if (restored) {
-          setOrderId(restored.orderId);
-          setPackageType(restored.packageType);
-          setGuestNameService(restored.guestNameService);
-          const nextTemplateSlug =
-            restored.templateSlug ?? templates[0]?.slug ?? "thiep-cuoi-1";
-          const nextFormData =
-            (restored.formData as InviteFormData | null) ??
-            createEmptyInviteFormData();
-          if (restored.templateSlug) setTemplateSlug(restored.templateSlug);
-          if (restored.formData)
-            setFormData(restored.formData as InviteFormData);
-          saveDraft({
-            packageType: restored.packageType,
-            guestNameService: restored.guestNameService,
-            templateSlug: nextTemplateSlug,
-            formData: nextFormData,
+            invitations: buildCheckoutInvitations(nextSlots),
           });
-          writeLocalJson(PACKAGE_STORAGE_KEY, {
-            packageType: restored.packageType,
-            guestNameService: restored.guestNameService,
-          });
+        }
+      } else if (checkout) {
+        const checkoutInvitations = getCheckoutSessionInvitations(checkout);
+        const invitationRecords = await Promise.all(
+          checkoutInvitations.map((invitation) =>
+            getInvitationById(invitation.invitationId),
+          ),
+        );
+        const records = invitationRecords.filter(Boolean);
+
+        if (records.length > 0) {
+          nextOrderId = checkout.orderId;
+          const firstOrder = records[0]?.order;
+          if (firstOrder) {
+            nextPackageType = firstOrder.packageType as PackageType;
+            nextGuestNameService = firstOrder.guestNameService;
+            nextOrderEmail = firstOrder.email;
+          }
+          nextSlots = records.map((record, index) => ({
+            label: record?.label || SLOT_LABELS[index] || `Thiệp ${index + 1}`,
+            templateSlug: record?.templateSlug || fallbackTemplate,
+            formData: record?.data as InviteFormData,
+            invitationId: record?.id,
+            demoUrl: record ? `/demo/${record.slug}` : undefined,
+          }));
         }
       }
 
-      const draft = loadDraft();
-
-      if (checkout) {
-        setOrderId(checkout.orderId);
-        setInvitationId(checkout.invitationId);
-        setDemoUrl(checkout.demoUrl);
-        setIsComplete(true);
-        try {
-          const invitation = await getInvitationById(checkout.invitationId);
-          if (invitation?.data) {
-            const meta: SavedMeta = {
-              packageType: invitation.order.packageType as PackageType,
-              guestNameService: invitation.order.guestNameService,
-              templateSlug: invitation.templateSlug,
-            };
-            setFormData(invitation.data as InviteFormData);
-            setPackageType(meta.packageType);
-            setGuestNameService(meta.guestNameService);
-            setTemplateSlug(meta.templateSlug);
-            setSavedMeta(meta);
-            saveDraft({
-              ...meta,
-              formData: invitation.data as InviteFormData,
-            });
-          } else if (draft) {
-            setSavedMeta({
-              packageType: draft.packageType,
-              guestNameService: draft.guestNameService,
-              templateSlug: draft.templateSlug,
-            });
-            setPackageType(draft.packageType);
-            setGuestNameService(draft.guestNameService);
-            setTemplateSlug(draft.templateSlug);
-            setFormData(draft.formData);
-          }
-        } catch {
-          if (draft) {
-            setSavedMeta({
-              packageType: draft.packageType,
-              guestNameService: draft.guestNameService,
-              templateSlug: draft.templateSlug,
-            });
-            setPackageType(draft.packageType);
-            setGuestNameService(draft.guestNameService);
-            setTemplateSlug(draft.templateSlug);
-            setFormData(draft.formData);
-          }
-        }
-      } else if (draft) {
-        setPackageType(draft.packageType);
-        setGuestNameService(draft.guestNameService);
-        setTemplateSlug(draft.templateSlug);
-        setFormData(draft.formData);
+      if (queryOverrides?.packageType) {
+        nextPackageType = queryOverrides.packageType;
+      }
+      if (queryOverrides?.templateSlug) {
+        nextSlots = nextSlots.map((slot, index) => ({
+          ...slot,
+          templateSlug:
+            nextPackageType === "dual_diff" && index > 0
+              ? slot.templateSlug || queryOverrides.templateSlug || fallbackTemplate
+              : queryOverrides.templateSlug || fallbackTemplate,
+        }));
       }
 
-      applyQueryOverrides(queryOverrides, { setPackageType, setTemplateSlug });
+      const normalizedSlots = normalizeSlotsForPackage(
+        nextPackageType,
+        nextSlots,
+        fallbackTemplate,
+      );
+
+      setOrderId(nextOrderId);
+      setSepayRef(nextSepayRef);
+      setPackageType(nextPackageType);
+      setGuestNameService(nextGuestNameService);
+      setSlots(normalizedSlots);
+      setActiveSlotIndex(
+        Math.min(nextActiveSlotIndex, normalizedSlots.length - 1),
+      );
+      setOrderEmail(nextOrderEmail);
+      setHydrated(true);
     }
 
     void hydrate();
@@ -208,25 +415,16 @@ export default function InviteWizard({
   }, []);
 
   useEffect(() => {
-    const meta =
-      isComplete && savedMeta
-        ? savedMeta
-        : { packageType, guestNameService, templateSlug };
-
-    saveDraft({
-      packageType: meta.packageType,
-      guestNameService: meta.guestNameService,
-      templateSlug: meta.templateSlug,
-      formData,
-    });
-  }, [
-    packageType,
-    guestNameService,
-    templateSlug,
-    formData,
-    isComplete,
-    savedMeta,
-  ]);
+    if (!hydrated) return;
+    writeLocalJson(WIZARD_STORAGE_KEY, {
+      packageType,
+      guestNameService,
+      activeSlotIndex,
+      orderEmail,
+      slots,
+      sepayRef: sepayRef || undefined,
+    } satisfies WizardDraft);
+  }, [activeSlotIndex, guestNameService, hydrated, orderEmail, packageType, sepayRef, slots]);
 
   useEffect(() => {
     if (!toast) return;
@@ -238,127 +436,165 @@ export default function InviteWizard({
     setToast(message);
   }
 
-  function updateField<K extends keyof InviteFormData>(
+  function updateSlot(slotIndex: number, update: (slot: InviteSlot) => InviteSlot) {
+    setSlots((current) => {
+      const next = current.map((slot, index) =>
+        index === slotIndex ? update(slot) : slot,
+      );
+      return packageType === "dual_same"
+        ? next.map((slot) => ({ ...slot, templateSlug: next[0].templateSlug }))
+        : next;
+    });
+  }
+
+  function updateActiveFormField<K extends keyof InviteFormData>(
     key: K,
     value: InviteFormData[K],
   ) {
-    setFormData((c) => ({ ...c, [key]: value }));
+    updateSlot(activeSlotIndex, (slot) => ({
+      ...slot,
+      formData: { ...slot.formData, [key]: value },
+    }));
   }
 
-  function validateStep(s: number): string | null {
-    switch (s) {
-      case 0:
-        if (!templateSlug) return "Vui lòng chọn mẫu thiệp";
-        return null;
-      case 1:
-        if (!formData.groomName.trim()) return "Vui lòng nhập tên chú rể";
-        if (!formData.brideName.trim()) return "Vui lòng nhập tên cô dâu";
-        if (!formData.weddingAt) return "Vui lòng chọn thời gian";
-        if (!formData.venue.name.trim()) return "Vui lòng nhập địa điểm";
-        if (!formData.venue.address.trim())
-          return "Vui lòng nhập địa chỉ tiệc cưới";
-        return null;
-      case 2:
-        if (!formData.groomFamily.fatherName.trim())
-          return "Vui lòng nhập tên bố nhà trai";
-        if (!formData.groomFamily.motherName.trim())
-          return "Vui lòng nhập tên mẹ nhà trai";
-        if (!formData.groomFamily.address.trim())
-          return "Vui lòng nhập địa chỉ nhà trai";
-        if (!formData.brideFamily.fatherName.trim())
-          return "Vui lòng nhập tên bố nhà gái";
-        if (!formData.brideFamily.motherName.trim())
-          return "Vui lòng nhập tên mẹ nhà gái";
-        if (!formData.brideFamily.address.trim())
-          return "Vui lòng nhập địa chỉ nhà gái";
-        return null;
-      case 3:
-        if (!formData.images.hero) return "Vui lòng tải lên ảnh bìa";
-        if (!formData.images.thankYou) return "Vui lòng tải lên ảnh kết thiệp";
-        return null;
-      case 4:
-        if (!formData.bankAccount.accountNumber.trim())
-          return "Vui lòng nhập số tài khoản";
-        if (!formData.bankAccount.accountName.trim())
-          return "Vui lòng nhập tên chủ tài khoản";
-        if (!formData.bankAccount.bankBin.trim())
-          return "Vui lòng chọn ngân hàng";
-        if (!formData.wishNotificationEmail.trim())
-          return "Vui lòng nhập email";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.wishNotificationEmail))
-          return "Email không hợp lệ";
-        return null;
-      default:
-        return null;
+  function handlePackageChange(nextPackageType: PackageType) {
+    setPackageType(nextPackageType);
+    setSlots((current) =>
+      normalizeSlotsForPackage(nextPackageType, current, fallbackTemplate),
+    );
+    setActiveSlotIndex((current) =>
+      Math.min(current, getSlotCount(nextPackageType) - 1),
+    );
+    writeLocalJson(PACKAGE_STORAGE_KEY, {
+      packageType: nextPackageType,
+      guestNameService,
+    });
+  }
+
+  function handleTemplateChange(value: string, slotIndex = activeSlotIndex) {
+    if (packageType !== "dual_diff") {
+      setSlots((current) =>
+        current.map((slot) => ({ ...slot, templateSlug: value })),
+      );
+      return;
     }
+
+    updateSlot(slotIndex, (slot) => ({ ...slot, templateSlug: value }));
   }
 
   function goNext() {
-    const err = validateStep(step);
+    const err =
+      step === 0
+        ? validateTemplateStep(packageType, slots)
+        : validateSlotStep(activeSlot, step, orderEmail);
     if (err) {
       showToast(err);
       return;
     }
-    setStep((c) => Math.min(c + 1, STEPS.length - 1));
+    if (step === 0) setActiveSlotIndex(0);
+    setStep((current) => Math.min(current + 1, STEPS.length - 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function goBack() {
-    setStep((c) => Math.max(c - 1, 0));
+    setStep((current) => Math.max(current - 1, 0));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function editSlot(slotIndex: number) {
+    setActiveSlotIndex(slotIndex);
+    setStep(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function goToPayment() {
+    if (!canPay) {
+      showToast("Vui lòng tạo bản xem trước cho cả 2 thiệp trước khi thanh toán.");
+    }
+  }
+
+  async function copyLink(demoUrl: string, key: string) {
+    await navigator.clipboard.writeText(`${window.location.origin}${demoUrl}`);
+    setCopied(key);
+    window.setTimeout(() => setCopied(""), 2000);
+  }
+
   async function handleSubmit() {
-    const err = validateStep(step);
+    const err = validateSlotStep(activeSlot, step, orderEmail);
     if (err) {
       showToast(err);
       return;
     }
+
     setSubmitting(true);
-    const isUpdate = Boolean(invitationId);
+    const isUpdate = Boolean(activeSlot.invitationId);
+
     try {
       let currentOrderId = orderId;
       if (!currentOrderId) {
         const order = await createOrder({
-          email: formData.wishNotificationEmail,
+          email: orderEmail,
           packageType,
           guestNameService,
         });
         currentOrderId = order.orderId;
         setOrderId(currentOrderId);
+        setSepayRef(order.sepayRef);
       } else {
         await updateOrderDraft(currentOrderId, {
-          email: formData.wishNotificationEmail,
+          email: orderEmail,
           packageType,
           guestNameService,
         });
       }
+
+      const formDataForSave = {
+        ...activeSlot.formData,
+        wishNotificationEmail:
+          activeSlot.formData.wishNotificationEmail || orderEmail,
+      };
       const result = await saveInvitation({
         orderId: currentOrderId,
-        templateSlug,
-        invitationId: invitationId || undefined,
-        data: formData,
+        label: activeSlot.label,
+        templateSlug: resolveTemplateForSlot(
+          packageType,
+          slots,
+          activeSlotIndex,
+        ),
+        invitationId: activeSlot.invitationId,
+        data: formDataForSave,
       });
-      setInvitationId(result.invitationId);
-      setDemoUrl(result.demoUrl);
-      const nextMeta: SavedMeta = {
-        packageType,
-        guestNameService,
-        templateSlug,
-      };
-      setSavedMeta(nextMeta);
-      saveDraft({ ...nextMeta, formData });
+
+      const nextSlots = slots.map((slot, index) =>
+        index === activeSlotIndex
+          ? {
+              ...slot,
+              formData: formDataForSave,
+              invitationId: result.invitationId,
+              demoUrl: result.demoUrl,
+            }
+          : slot,
+      );
+      setSlots(nextSlots);
       writeLocalJson(PACKAGE_STORAGE_KEY, {
         packageType,
         guestNameService,
       });
       saveCheckoutSession({
         orderId: currentOrderId,
-        invitationId: result.invitationId,
-        demoUrl: result.demoUrl,
+        invitations: buildCheckoutInvitations(nextSlots),
       });
-      setIsComplete(true);
-      if (isUpdate) showToast("Đã cập nhật bản xem trước");
+
+      const missingSlotIndex = getFirstMissingSlotIndex(nextSlots);
+      if (isDual && missingSlotIndex >= 0) {
+        setActiveSlotIndex(missingSlotIndex);
+        setStep(1);
+        showToast(`Đã tạo xem trước ${activeSlot.label}. Tiếp tục chỉnh ${nextSlots[missingSlotIndex].label}.`);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
+      showToast(isUpdate ? "Đã cập nhật bản xem trước" : "Đã tạo bản xem trước");
     } catch (e) {
       showToast(e instanceof Error ? e.message : "Lưu thất bại");
     } finally {
@@ -366,101 +602,172 @@ export default function InviteWizard({
     }
   }
 
-  async function copyLink() {
-    await navigator.clipboard.writeText(`${window.location.origin}${demoUrl}`);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 2000);
-  }
-
-  const progressPct = ((step + 1) / STEPS.length) * 100;
+  if (!activeSlot) return null;
 
   return (
     <div className="wizard">
-      {isComplete && demoUrl && orderId && (
+      {slots.some((slot) => slot.demoUrl) && (
         <div className="wdemo-card">
           <div className="wdemo-card__head">
             <span className="wdemo-card__badge">
               <Sparkles size={12} />
               Bản xem trước
             </span>
-            <p className="wdemo-card__title">Thiệp của bạn đã sẵn sàng</p>
+            <p className="wdemo-card__title">
+              {isDual ? `${completedCount}/2 thiệp đã sẵn sàng` : "Thiệp của bạn đã sẵn sàng"}
+            </p>
             <p className="wdemo-card__desc">
-              Xem lại, chỉnh sửa thêm hoặc thanh toán để nhận liên kết chính
-              thức.
+              Xem lại, chỉnh sửa thêm hoặc thanh toán để nhận liên kết chính thức.
             </p>
           </div>
-          <div className="wdemo-card__actions">
-            <a
-              href={demoUrl}
-              className="site-btn site-btn--primary site-btn--full"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Eye size={15} />
-              Mở xem trước
-            </a>
-            <div className="wdemo-card__secondary">
-              <button
-                type="button"
-                className="site-btn site-btn--ghost site-btn--full"
-                onClick={copyLink}
-              >
-                {copied ? <Check size={14} /> : <Copy size={14} />}
-                {copied ? "Đã sao chép" : "Sao chép liên kết"}
-              </button>
-              <Link
-                href={`/thanh-toan/${orderId}`}
-                className="site-btn site-btn--green site-btn--full"
-              >
-                <CreditCard size={14} />
-                Thanh toán
-              </Link>
+
+          {isDual ? (
+            <div className="wdemo-list">
+              {slots.map((slot, index) => (
+                <div key={slot.label} className="wdemo-item">
+                  <div className="wdemo-item__meta">
+                    <span className="wdemo-item__name">{slot.label}</span>
+                    <span className={`wdemo-item__status${slot.demoUrl ? " is-done" : ""}`}>
+                      {slot.demoUrl ? "Đã tạo" : "Còn thiếu"}
+                    </span>
+                  </div>
+                  <div className="wdemo-item__actions">
+                    {slot.demoUrl ? (
+                      <>
+                        <a
+                          href={slot.demoUrl}
+                          className="site-btn site-btn--primary site-btn--sm"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Eye size={13} />
+                          Xem
+                        </a>
+                        <button
+                          type="button"
+                          className="site-btn site-btn--ghost site-btn--sm"
+                          onClick={() => copyLink(slot.demoUrl as string, slot.label)}
+                        >
+                          {copied === slot.label ? <Check size={13} /> : <Copy size={13} />}
+                          {copied === slot.label ? "Đã sao chép" : "Sao chép"}
+                        </button>
+                      </>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="site-btn site-btn--ghost site-btn--sm"
+                      onClick={() => editSlot(index)}
+                    >
+                      <Pencil size={13} />
+                      Sửa
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {canPay && sepayRef ? (
+                <Link
+                  href={`/thanh-toan/${sepayRef}`}
+                  className="site-btn site-btn--green site-btn--full"
+                >
+                  <CreditCard size={14} />
+                  Thanh toán
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="site-btn site-btn--green site-btn--full"
+                  onClick={goToPayment}
+                >
+                  <CreditCard size={14} />
+                  Thanh toán
+                </button>
+              )}
             </div>
-          </div>
+          ) : (
+            <div className="wdemo-card__actions">
+              <a
+                href={slots[0].demoUrl}
+                className="site-btn site-btn--primary site-btn--full"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Eye size={15} />
+                Mở xem trước
+              </a>
+              <div className="wdemo-card__secondary">
+                <button
+                  type="button"
+                  className="site-btn site-btn--ghost site-btn--full"
+                  onClick={() => copyLink(slots[0].demoUrl as string, slots[0].label)}
+                >
+                  {copied === slots[0].label ? <Check size={14} /> : <Copy size={14} />}
+                  {copied === slots[0].label ? "Đã sao chép" : "Sao chép liên kết"}
+                </button>
+                <Link
+                  href={`/thanh-toan/${sepayRef}`}
+                  className="site-btn site-btn--green site-btn--full"
+                >
+                  <CreditCard size={14} />
+                  Thanh toán
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* ── Step title ── */}
+      {isDual && step > 0 && (
+        <div className="wslot-tabs">
+          {slots.map((slot, index) => {
+            const isActive = activeSlotIndex === index;
+            return (
+              <button
+                key={slot.label}
+                type="button"
+                className={`wslot-tab${isActive ? " is-active" : ""}`}
+                onClick={() => setActiveSlotIndex(index)}
+              >
+                <span className="wslot-tab__name">Thiệp {index + 1}</span>
+                <span className={`wslot-tab__status${getSlotStatusClass(slot, isActive)}`}>
+                  {getSlotStatus(slot, isActive)}
+                </span>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            className="site-btn site-btn--ghost site-btn--sm"
+            style={{ gridColumn: "1 / -1", width: "100%", backgroundColor: "#fff" }}
+            onClick={() => {
+              setSlots((current) => {
+                const next = [...current];
+                if (next[1]) {
+                  next[1] = { ...next[1], formData: cloneFormData(next[0].formData) };
+                }
+                return next;
+              });
+              showToast("Đã đồng bộ nội dung thiệp 1 sang thiệp 2");
+            }}
+          >
+            <Copy size={12} strokeWidth={2.5} />
+            Đồng bộ từ thiệp 1
+          </button>
+        </div>
+      )}
+
       <div className="wstep-title">
-        <h2 className="wstep-title__text">{STEPS[step]}</h2>
+        <h2 className="wstep-title__text">
+          {STEPS[step]}
+          {isDual && step > 0 ? ` - Thiệp ${activeSlotNumber}` : ""}
+        </h2>
         <span className="wstep-title__counter">
           {step + 1} / {STEPS.length}
         </span>
       </div>
 
-      {/* ── Panel ── */}
       <div className="wizard-panel">
-        {/* BƯỚC 1 — Gói & mẫu */}
         {step === 0 && (
           <div className="form-stack">
-            {/* Mẫu thiệp */}
-            <div className="wcard">
-              <p className="wcard__title">Mẫu thiệp</p>
-              <label className="field">
-                <span className="field__label">Chọn mẫu</span>
-                <select
-                  value={templateSlug}
-                  onChange={(e) => setTemplateSlug(e.target.value)}
-                >
-                  {templates.map((t, i) => (
-                    <option key={t.slug} value={t.slug}>
-                      Mẫu {i + 1}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <a
-                href={`/${templateSlug}`}
-                className="wcard__preview-link"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <ExternalLink size={12} />
-                Xem thử mẫu này
-              </a>
-            </div>
-
-            {/* Gói dịch vụ */}
             <div className="wcard">
               <p className="wcard__title">Gói dịch vụ</p>
               <div className="wpkg-list">
@@ -469,7 +776,7 @@ export default function InviteWizard({
                     key={pkg.id}
                     type="button"
                     className={`wpkg-item${packageType === pkg.id ? " is-active" : ""}`}
-                    onClick={() => setPackageType(pkg.id)}
+                    onClick={() => handlePackageChange(pkg.id)}
                   >
                     <span className="wpkg-item__radio">
                       <span className="wpkg-item__dot" />
@@ -483,7 +790,63 @@ export default function InviteWizard({
               </div>
             </div>
 
-            {/* Tên riêng khách mời */}
+            <div className="wcard">
+              <p className="wcard__title">Mẫu thiệp</p>
+              {packageType === "dual_diff" ? (
+                <div className="form-stack">
+                  {slots.map((slot, index) => (
+                    <label key={slot.label} className="field">
+                      <span className="field__label">Mẫu thiệp {index + 1}</span>
+                      <select
+                        value={slot.templateSlug}
+                        onChange={(e) => handleTemplateChange(e.target.value, index)}
+                      >
+                        {templates.map((template, templateIndex) => (
+                          <option key={template.slug} value={template.slug}>
+                            Mẫu {templateIndex + 1}
+                          </option>
+                        ))}
+                      </select>
+                      <a
+                        href={`/${slot.templateSlug}`}
+                        className="wcard__preview-link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink size={12} />
+                        Xem thử mẫu thiệp {index + 1}
+                      </a>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <label className="field">
+                  <span className="field__label">
+                    {packageType === "dual_same" ? "Mẫu dùng chung cho 2 thiệp" : "Chọn mẫu"}
+                  </span>
+                  <select
+                    value={resolveTemplateForSlot(packageType, slots, 0)}
+                    onChange={(e) => handleTemplateChange(e.target.value, 0)}
+                  >
+                    {templates.map((template, index) => (
+                      <option key={template.slug} value={template.slug}>
+                        Mẫu {index + 1}
+                      </option>
+                    ))}
+                  </select>
+                  <a
+                    href={`/${resolveTemplateForSlot(packageType, slots, 0)}`}
+                    className="wcard__preview-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink size={12} />
+                    Xem thử mẫu này
+                  </a>
+                </label>
+              )}
+            </div>
+
             <div className="wcard">
               <p className="wcard__title">Tên riêng</p>
               <div className="wguest-list">
@@ -495,11 +858,7 @@ export default function InviteWizard({
                   <span className="wguest-item__radio">
                     <span className="wguest-item__dot" />
                   </span>
-                  <Users
-                    size={18}
-                    className="wguest-item__icon"
-                    strokeWidth={1.6}
-                  />
+                  <Users size={18} className="wguest-item__icon" strokeWidth={1.6} />
                   <span className="wguest-item__name">Thiệp chung</span>
                   <span className="wguest-item__price">Miễn phí</span>
                 </button>
@@ -511,11 +870,7 @@ export default function InviteWizard({
                   <span className="wguest-item__radio">
                     <span className="wguest-item__dot" />
                   </span>
-                  <UserRound
-                    size={18}
-                    className="wguest-item__icon"
-                    strokeWidth={1.6}
-                  />
+                  <UserRound size={18} className="wguest-item__icon" strokeWidth={1.6} />
                   <span className="wguest-item__name">Tên riêng</span>
                   <span className="wguest-item__price">
                     +{formatVnd(GUEST_NAME_SERVICE_PRICE)}
@@ -526,7 +881,6 @@ export default function InviteWizard({
           </div>
         )}
 
-        {/* BƯỚC 2 — Thông tin cưới */}
         {step === 1 && (
           <div className="form-stack">
             <div className="wcard">
@@ -535,16 +889,16 @@ export default function InviteWizard({
                 <label className="field">
                   <span className="field__label">Chú rể</span>
                   <input
-                    value={formData.groomName}
-                    onChange={(e) => updateField("groomName", e.target.value)}
+                    value={activeSlot.formData.groomName}
+                    onChange={(e) => updateActiveFormField("groomName", e.target.value)}
                     placeholder="Trọng Nam"
                   />
                 </label>
                 <label className="field">
                   <span className="field__label">Cô dâu</span>
                   <input
-                    value={formData.brideName}
-                    onChange={(e) => updateField("brideName", e.target.value)}
+                    value={activeSlot.formData.brideName}
+                    onChange={(e) => updateActiveFormField("brideName", e.target.value)}
                     placeholder="Bích Ngọc"
                   />
                 </label>
@@ -558,17 +912,17 @@ export default function InviteWizard({
                   <span className="field__label">Ngày giờ tổ chức</span>
                   <input
                     type="datetime-local"
-                    value={formData.weddingAt}
-                    onChange={(e) => updateField("weddingAt", e.target.value)}
+                    value={activeSlot.formData.weddingAt}
+                    onChange={(e) => updateActiveFormField("weddingAt", e.target.value)}
                   />
                 </label>
                 <label className="field">
                   <span className="field__label">Tên địa điểm</span>
                   <input
-                    value={formData.venue.name}
+                    value={activeSlot.formData.venue.name}
                     onChange={(e) =>
-                      updateField("venue", {
-                        ...formData.venue,
+                      updateActiveFormField("venue", {
+                        ...activeSlot.formData.venue,
                         name: e.target.value,
                       })
                     }
@@ -579,10 +933,10 @@ export default function InviteWizard({
                   <span className="field__label">Địa chỉ tiệc cưới</span>
                   <textarea
                     rows={2}
-                    value={formData.venue.address}
+                    value={activeSlot.formData.venue.address}
                     onChange={(e) =>
-                      updateField("venue", {
-                        ...formData.venue,
+                      updateActiveFormField("venue", {
+                        ...activeSlot.formData.venue,
                         address: e.target.value,
                       })
                     }
@@ -597,10 +951,10 @@ export default function InviteWizard({
                     </span>
                   </span>
                   <input
-                    value={formData.venue.mapUrl ?? ""}
+                    value={activeSlot.formData.venue.mapUrl ?? ""}
                     onChange={(e) =>
-                      updateField("venue", {
-                        ...formData.venue,
+                      updateActiveFormField("venue", {
+                        ...activeSlot.formData.venue,
                         mapUrl: e.target.value,
                       })
                     }
@@ -612,7 +966,6 @@ export default function InviteWizard({
           </div>
         )}
 
-        {/* BƯỚC 3 — Gia đình & ảnh */}
         {step === 2 && (
           <div className="form-stack">
             <div className="wcard">
@@ -621,10 +974,10 @@ export default function InviteWizard({
                 <label className="field">
                   <span className="field__label">Tên bố</span>
                   <input
-                    value={formData.groomFamily.fatherName}
+                    value={activeSlot.formData.groomFamily.fatherName}
                     onChange={(e) =>
-                      updateField("groomFamily", {
-                        ...formData.groomFamily,
+                      updateActiveFormField("groomFamily", {
+                        ...activeSlot.formData.groomFamily,
                         fatherName: e.target.value,
                       })
                     }
@@ -633,10 +986,10 @@ export default function InviteWizard({
                 <label className="field">
                   <span className="field__label">Tên mẹ</span>
                   <input
-                    value={formData.groomFamily.motherName}
+                    value={activeSlot.formData.groomFamily.motherName}
                     onChange={(e) =>
-                      updateField("groomFamily", {
-                        ...formData.groomFamily,
+                      updateActiveFormField("groomFamily", {
+                        ...activeSlot.formData.groomFamily,
                         motherName: e.target.value,
                       })
                     }
@@ -647,10 +1000,10 @@ export default function InviteWizard({
                 <span className="field__label">Địa chỉ</span>
                 <textarea
                   rows={2}
-                  value={formData.groomFamily.address}
+                  value={activeSlot.formData.groomFamily.address}
                   onChange={(e) =>
-                    updateField("groomFamily", {
-                      ...formData.groomFamily,
+                    updateActiveFormField("groomFamily", {
+                      ...activeSlot.formData.groomFamily,
                       address: e.target.value,
                     })
                   }
@@ -664,10 +1017,10 @@ export default function InviteWizard({
                 <label className="field">
                   <span className="field__label">Tên bố</span>
                   <input
-                    value={formData.brideFamily.fatherName}
+                    value={activeSlot.formData.brideFamily.fatherName}
                     onChange={(e) =>
-                      updateField("brideFamily", {
-                        ...formData.brideFamily,
+                      updateActiveFormField("brideFamily", {
+                        ...activeSlot.formData.brideFamily,
                         fatherName: e.target.value,
                       })
                     }
@@ -676,10 +1029,10 @@ export default function InviteWizard({
                 <label className="field">
                   <span className="field__label">Tên mẹ</span>
                   <input
-                    value={formData.brideFamily.motherName}
+                    value={activeSlot.formData.brideFamily.motherName}
                     onChange={(e) =>
-                      updateField("brideFamily", {
-                        ...formData.brideFamily,
+                      updateActiveFormField("brideFamily", {
+                        ...activeSlot.formData.brideFamily,
                         motherName: e.target.value,
                       })
                     }
@@ -690,10 +1043,10 @@ export default function InviteWizard({
                 <span className="field__label">Địa chỉ</span>
                 <textarea
                   rows={2}
-                  value={formData.brideFamily.address}
+                  value={activeSlot.formData.brideFamily.address}
                   onChange={(e) =>
-                    updateField("brideFamily", {
-                      ...formData.brideFamily,
+                    updateActiveFormField("brideFamily", {
+                      ...activeSlot.formData.brideFamily,
                       address: e.target.value,
                     })
                   }
@@ -703,7 +1056,6 @@ export default function InviteWizard({
           </div>
         )}
 
-        {/* BƯỚC 4 — Ảnh thiệp */}
         {step === 3 && (
           <div className="form-stack">
             <div className="wcard">
@@ -711,16 +1063,22 @@ export default function InviteWizard({
               <div className="form-row">
                 <ImageUploadField
                   label="Ảnh bìa"
-                  value={formData.images.hero}
+                  value={activeSlot.formData.images.hero}
                   onChange={(url) =>
-                    updateField("images", { ...formData.images, hero: url })
+                    updateActiveFormField("images", {
+                      ...activeSlot.formData.images,
+                      hero: url,
+                    })
                   }
                 />
                 <ImageUploadField
                   label="Ảnh kết thiệp"
-                  value={formData.images.thankYou}
+                  value={activeSlot.formData.images.thankYou}
                   onChange={(url) =>
-                    updateField("images", { ...formData.images, thankYou: url })
+                    updateActiveFormField("images", {
+                      ...activeSlot.formData.images,
+                      thankYou: url,
+                    })
                   }
                 />
               </div>
@@ -728,25 +1086,18 @@ export default function InviteWizard({
 
             <div className="wcard">
               <p className="wcard__title">Ảnh thư mời (3 ảnh)</p>
-              <div
-                className="form-row"
-                style={{ gridTemplateColumns: "repeat(3,1fr)" }}
-              >
-                {formData.images.invitation.map((url, index) => (
+              <div className="form-row" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
+                {activeSlot.formData.images.invitation.map((url, index) => (
                   <ImageUploadField
-                    key={`inv-${index}`}
+                    key={`inv-${activeSlotIndex}-${index}`}
                     label={`${index + 1}`}
                     value={url}
                     onChange={(nextUrl) => {
-                      const inv = [...formData.images.invitation] as [
-                        string,
-                        string,
-                        string,
-                      ];
-                      inv[index] = nextUrl;
-                      updateField("images", {
-                        ...formData.images,
-                        invitation: inv,
+                      const invitation = [...activeSlot.formData.images.invitation] as [string, string, string];
+                      invitation[index] = nextUrl;
+                      updateActiveFormField("images", {
+                        ...activeSlot.formData.images,
+                        invitation,
                       });
                     }}
                   />
@@ -757,20 +1108,17 @@ export default function InviteWizard({
             <div className="wcard">
               <p className="wcard__title">Ảnh gia đình (2 ảnh)</p>
               <div className="form-row">
-                {formData.images.family.map((url, index) => (
+                {activeSlot.formData.images.family.map((url, index) => (
                   <ImageUploadField
-                    key={`fam-${index}`}
+                    key={`fam-${activeSlotIndex}-${index}`}
                     label={`${index + 1}`}
                     value={url}
                     onChange={(nextUrl) => {
-                      const fam = [...formData.images.family] as [
-                        string,
-                        string,
-                      ];
-                      fam[index] = nextUrl;
-                      updateField("images", {
-                        ...formData.images,
-                        family: fam,
+                      const family = [...activeSlot.formData.images.family] as [string, string];
+                      family[index] = nextUrl;
+                      updateActiveFormField("images", {
+                        ...activeSlot.formData.images,
+                        family,
                       });
                     }}
                   />
@@ -780,21 +1128,19 @@ export default function InviteWizard({
 
             <div className="wcard">
               <p className="wcard__title">Bộ ảnh cưới (10 ảnh)</p>
-              <div
-                className="form-row"
-                style={{ gridTemplateColumns: "repeat(2,1fr)" }}
-              >
-                {formData.images.gallery.map((url, index) => (
+              <div className="form-row" style={{ gridTemplateColumns: "repeat(2,1fr)" }}>
+                {activeSlot.formData.images.gallery.map((url, index) => (
                   <ImageUploadField
-                    key={`gal-${index}`}
+                    key={`gal-${activeSlotIndex}-${index}`}
                     label={`${index + 1}`}
                     value={url}
                     onChange={(nextUrl) => {
-                      const gallery = [
-                        ...formData.images.gallery,
-                      ] as InviteFormData["images"]["gallery"];
+                      const gallery = [...activeSlot.formData.images.gallery] as InviteFormData["images"]["gallery"];
                       gallery[index] = nextUrl;
-                      updateField("images", { ...formData.images, gallery });
+                      updateActiveFormField("images", {
+                        ...activeSlot.formData.images,
+                        gallery,
+                      });
                     }}
                   />
                 ))}
@@ -803,34 +1149,33 @@ export default function InviteWizard({
           </div>
         )}
 
-        {/* BƯỚC 5 — Tài khoản & email */}
         {step === 4 && (
           <div className="form-stack">
             <div className="wcard">
               <p className="wcard__title">Chuyển khoản mừng cưới</p>
               <BankAccountFields
-                value={formData.bankAccount}
+                value={activeSlot.formData.bankAccount}
                 onChange={(bankAccount) =>
-                  updateField("bankAccount", bankAccount)
+                  updateActiveFormField("bankAccount", bankAccount)
                 }
               />
             </div>
 
             <div className="wcard">
-              <p className="wcard__title">Email nhận thiệp</p>
+              <p className="wcard__title">Email nhận link chính thức</p>
               <label className="field">
                 <span className="field__label">Email</span>
                 <input
                   type="email"
-                  value={formData.wishNotificationEmail}
-                  onChange={(e) =>
-                    updateField("wishNotificationEmail", e.target.value)
-                  }
+                  value={orderEmail}
+                  onChange={(e) => {
+                    setOrderEmail(e.target.value);
+                    updateActiveFormField("wishNotificationEmail", e.target.value);
+                  }}
                   placeholder="ten@example.com"
                 />
                 <span className="field__hint">
-                  Liên kết thiệp chính thức và lời chúc của khách sẽ gửi về
-                  email này sau khi thanh toán.
+                  Sau khi thanh toán, hệ thống sẽ gửi toàn bộ link thiệp chính thức về email này.
                 </span>
               </label>
             </div>
@@ -838,7 +1183,6 @@ export default function InviteWizard({
         )}
       </div>
 
-      {/* ── Sticky actions ── */}
       <div className="wizard-actions">
         <div className="wizard-progress">
           <div
@@ -848,11 +1192,7 @@ export default function InviteWizard({
         </div>
         <div className="wizard-actions__inner">
           {step > 0 ? (
-            <button
-              type="button"
-              className="site-btn site-btn--ghost"
-              onClick={goBack}
-            >
+            <button type="button" className="site-btn site-btn--ghost" onClick={goBack}>
               <ChevronLeft size={15} />
               Quay lại
             </button>
@@ -861,11 +1201,7 @@ export default function InviteWizard({
           )}
 
           {step < STEPS.length - 1 ? (
-            <button
-              type="button"
-              className="site-btn site-btn--primary"
-              onClick={goNext}
-            >
+            <button type="button" className="site-btn site-btn--primary" onClick={goNext}>
               Tiếp theo
               <ArrowRight size={15} />
             </button>
@@ -878,12 +1214,12 @@ export default function InviteWizard({
             >
               {submitting ? (
                 "Đang lưu..."
-              ) : invitationId ? (
-                "Cập nhật"
+              ) : activeSlot.invitationId ? (
+                `Cập nhật thiệp ${activeSlotNumber}`
               ) : (
                 <>
                   <Eye size={14} />
-                  Tạo bản xem trước
+                  Tạo xem trước thiệp {activeSlotNumber}
                 </>
               )}
             </button>
@@ -893,7 +1229,6 @@ export default function InviteWizard({
 
       {toast && (
         <div className="site-toast" role="status">
-          <Check size={15} strokeWidth={3} />
           {toast}
         </div>
       )}

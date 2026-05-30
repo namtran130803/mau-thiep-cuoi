@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 import { getPaymentStatus } from "@/lib/actions/payment";
 
 type RouteContext = {
-  params: Promise<{ orderId: string }>;
+  params: Promise<{ ref: string }>;
 };
 
 export async function GET(_request: Request, context: RouteContext) {
-  const { orderId } = await context.params;
+  const { ref } = await context.params;
 
   try {
-    const result = await getPaymentStatus(orderId);
+    const result = await getPaymentStatus(ref);
     return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json(

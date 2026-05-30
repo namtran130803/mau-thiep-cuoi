@@ -5,82 +5,115 @@ import { assertCheckoutOrder, clearCheckoutOrder } from "@/lib/checkout/session"
 import { getSiteUrl, sendEmail } from "@/lib/email/smtp";
 import { publishInvitationsForOrder } from "@/lib/actions/invitation";
 import { sendPublishedEmail } from "@/lib/actions/order";
+import { formatDbId, parseDbId } from "@/lib/db/id";
 import { buildPaymentReference } from "@/lib/slug";
+import type { PackageType } from "@/lib/pricing";
+
+function getRequiredInvitationCount(packageType: PackageType): number {
+  return packageType === "single" ? 1 : 2;
+}
 
 export async function createPayment(orderId: string) {
   await assertCheckoutOrder(orderId);
+  const dbOrderId = parseDbId(orderId);
 
   const order = await prisma.order.findUnique({
-    where: { id: orderId },
-    include: { invitations: { take: 1 } },
+    where: { id: dbOrderId },
+    include: { invitations: { orderBy: { createdAt: "asc" } } },
   });
   if (!order) throw new Error("Không tìm thấy đơn hàng");
   if (order.status === "published" || order.status === "paid") {
     throw new Error("Đơn hàng đã thanh toán.");
   }
+  if (!order.sepayRef) throw new Error("Thiếu mã tham chiếu thanh toán.");
 
-  const inviteSlug = order.invitations[0]?.slug;
-  if (!inviteSlug) {
-    throw new Error("Vui lòng tạo bản xem trước trước khi thanh toán.");
+  const requiredInvitationCount = getRequiredInvitationCount(
+    order.packageType as PackageType,
+  );
+  const demoInvitations = order.invitations.filter(
+    (invitation) => invitation.status === "demo",
+  );
+
+  if (demoInvitations.length < requiredInvitationCount) {
+    throw new Error(
+      requiredInvitationCount === 1
+        ? "Vui lòng tạo bản xem trước trước khi thanh toán."
+        : "Vui lòng tạo bản xem trước cho cả 2 thiệp trước khi thanh toán.",
+    );
   }
-  const sepayRef = buildPaymentReference(inviteSlug);
 
-  const payment = await prisma.payment.upsert({
-    where: { orderId },
-    create: {
-      orderId,
-      amount: order.totalAmount,
-      status: "pending",
-      sepayRef,
-    },
-    update: {
-      amount: order.totalAmount,
-      status: "pending",
-      sepayRef,
-    },
+  const existingPayment = await prisma.payment.findUnique({
+    where: { orderId: dbOrderId },
   });
 
+  const payment = existingPayment
+    ? await prisma.payment.update({
+        where: { orderId: dbOrderId },
+        data: { amount: order.totalAmount, status: "pending" },
+      })
+      : await prisma.payment.create({
+        data: {
+          orderId: dbOrderId,
+          amount: order.totalAmount,
+          status: "pending",
+        },
+      });
+
   await prisma.order.update({
-    where: { id: orderId },
+    where: { id: dbOrderId },
     data: { status: "pending_payment" },
   });
 
-  return payment;
-}
-
-export async function getPaymentStatus(orderId: string) {
-  await assertCheckoutOrder(orderId);
-
-  const payment = await prisma.payment.findUnique({
-    where: { orderId },
-    include: {
-      order: { include: { invitations: true } },
-    },
-  });
-  if (!payment) return { status: "not_found" as const };
-
   return {
+    id: formatDbId(payment.id),
+    orderId: formatDbId(payment.orderId),
+    amount: payment.amount,
     status: payment.status,
-    invitations: payment.order.invitations.map((inv) => ({
-      id: inv.id,
-      slug: inv.slug,
-      status: inv.status,
-    })),
+    sepayRef: order.sepayRef,
   };
 }
 
-export async function confirmPayment(orderId: string) {
-  const payment = await prisma.payment.findUnique({ where: { orderId } });
+export async function getPaymentStatus(ref: string) {
+  const order = ref.startsWith("GW")
+    ? await prisma.order.findUnique({
+        where: { sepayRef: ref },
+        include: { invitations: true, payment: true },
+      })
+    : await prisma.order.findUnique({
+        where: { id: parseDbId(ref) },
+        include: { invitations: true, payment: true },
+      });
+  if (!order || !order.payment) return { status: "not_found" as const };
+
+  return {
+    status: order.payment.status,
+    invitations: order.invitations
+      .filter((inv) => order.payment!.status !== "paid" || inv.status === "active")
+      .map((inv) => ({
+        id: formatDbId(inv.id),
+        label: inv.label,
+        slug: inv.slug,
+        status: inv.status,
+      })),
+  };
+}
+
+export async function confirmPayment(orderId: string | bigint) {
+  const dbOrderId = parseDbId(orderId);
+  const orderIdText = formatDbId(dbOrderId);
+  const payment = await prisma.payment.findUnique({
+    where: { orderId: dbOrderId },
+  });
   if (!payment) throw new Error("Không tìm thấy thanh toán");
   if (payment.status === "paid") return { alreadyPaid: true };
 
   await prisma.payment.update({
-    where: { orderId },
+    where: { orderId: dbOrderId },
     data: { status: "paid", paidAt: new Date() },
   });
 
-  await publishInvitationsForOrder(orderId);
-  await sendPublishedEmail(orderId);
+  await publishInvitationsForOrder(orderIdText);
+  await sendPublishedEmail(orderIdText);
   await clearCheckoutOrder();
 
   return { alreadyPaid: false };

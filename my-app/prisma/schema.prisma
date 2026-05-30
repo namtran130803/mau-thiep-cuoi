@@ -7,12 +7,13 @@ datasource db {
 }
 
 model Order {
-  id               String       @id @default(cuid())
+  id               BigInt       @id @default(autoincrement())
   email            String
   packageType      String
   guestNameService Boolean      @default(false)
   status           String       @default("draft")
   totalAmount      Int
+  sepayRef         String?      @unique
   editToken        String       @unique @default(cuid())
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
@@ -21,8 +22,8 @@ model Order {
 }
 
 model Invitation {
-  id           String   @id @default(cuid())
-  orderId      String
+  id           BigInt   @id @default(autoincrement())
+  orderId      BigInt
   order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   templateSlug String
   slug         String   @unique
@@ -34,10 +35,9 @@ model Invitation {
 }
 
 model Payment {
-  id        String    @id @default(cuid())
-  orderId   String    @unique
+  id        BigInt    @id @default(autoincrement())
+  orderId   BigInt    @unique
   order     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  sepayRef  String?
   amount    Int
   status    String    @default("pending")
   paidAt    DateTime?
@@ -45,8 +45,8 @@ model Payment {
 }
 
 model Wish {
-  id           String     @id @default(cuid())
-  invitationId String
+  id           BigInt     @id @default(autoincrement())
+  invitationId BigInt
   invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
   name         String
   message      String

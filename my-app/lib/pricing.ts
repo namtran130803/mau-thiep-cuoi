@@ -8,7 +8,7 @@ export type PackageInfo = {
   features: string[];
 };
 
-export const GUEST_NAME_SERVICE_PRICE = 99000;
+export const GUEST_NAME_SERVICE_PRICE = 1000;
 
 export const GUEST_NAME_WITHOUT_LABEL = "Thiệp không dùng tên riêng từng khách mời";
 export const GUEST_NAME_WITH_LABEL = "Thiệp dùng tên riêng từng khách mời";
