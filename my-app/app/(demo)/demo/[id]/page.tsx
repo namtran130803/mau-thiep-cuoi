@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import "@/app/(invite)/invite.css";
 import DemoBanner from "@/components/site/DemoBanner";
 import InviteTemplateRenderer from "@/components/invite/InviteTemplateRenderer";
 import { getInvitationById, getInvitationBySlug } from "@/lib/actions/invitation";
@@ -37,17 +36,15 @@ export default async function DemoPage({ params }: DemoPageProps) {
   return (
     <>
       <DemoBanner payUrl={payUrl} />
-      <div className="invite-layout invite-layout--demo">
-        <Suspense fallback={null}>
-          <InviteTemplateRenderer
-            Component={Component}
-            data={data}
-            derived={derived}
-            slug={invitation.slug}
-            showGuestInvite={invitation.order.guestNameService}
-          />
-        </Suspense>
-      </div>
+      <Suspense fallback={null}>
+        <InviteTemplateRenderer
+          Component={Component}
+          data={data}
+          derived={derived}
+          slug={invitation.slug}
+          showGuestInvite={invitation.order.guestNameService}
+        />
+      </Suspense>
     </>
   );
 }

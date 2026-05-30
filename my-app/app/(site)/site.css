@@ -1239,39 +1239,6 @@ body:has(.site-shell) {
 
 .img-upload__input { display: none; }
 
-/* ─── Demo banner ─────────────────────────────────────────────────── */
-.demo-banner {
-  position: sticky;
-  top: var(--h-header);
-  z-index: 99;
-  background: var(--wine);
-  color: #fff;
-  padding: 10px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  font-size: 0.82rem;
-}
-
-.demo-banner--top {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  width: 100%;
-  max-width: 430px;
-  transform: translateX(-50%);
-  box-sizing: border-box;
-}
-
-.demo-banner__text {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
-}
-
 /* ─── Payment ─────────────────────────────────────────────────────── */
 .payment-wrap {
   padding: 20px;
