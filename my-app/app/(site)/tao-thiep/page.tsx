@@ -6,7 +6,7 @@ export default function TaoThiepPage() {
   return (
     <Suspense
       fallback={
-        <div className="page-body page-body--fill">
+        <div className="page-body page-body--fill create-invite-page">
           <SiteContainer className="site-container--panel site-container--fill">
             <div className="loading-state">Đang tải...</div>
           </SiteContainer>

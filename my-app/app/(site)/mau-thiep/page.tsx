@@ -7,7 +7,8 @@ import { listInviteTemplates } from "@/lib/templates/registry";
 
 export const metadata: Metadata = {
   title: "Mẫu thiệp cưới online — GoatWedding",
-  description: "Xem tất cả mẫu thiệp cưới online đẹp. Chọn phong cách phù hợp và bắt đầu tạo thiệp của bạn.",
+  description:
+    "Xem tất cả mẫu thiệp cưới online đẹp. Chọn phong cách phù hợp và bắt đầu tạo thiệp của bạn.",
 };
 
 export default function MauThiepPage() {
@@ -52,13 +53,6 @@ export default function MauThiepPage() {
                 </div>
               </article>
             ))}
-          </div>
-
-          <div className="text-center mt-32">
-            <Link href="/tao-thiep" className="site-btn site-btn--primary site-btn--full">
-              Bắt đầu tạo thiệp
-              <ArrowRight size={15} />
-            </Link>
           </div>
         </SiteContainer>
       </div>

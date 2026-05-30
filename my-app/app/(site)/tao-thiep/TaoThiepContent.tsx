@@ -131,7 +131,7 @@ export default function TaoThiepContent() {
 
   if (!initialDraft) {
     return (
-      <div className="page-body page-body--fill">
+      <div className="page-body page-body--fill create-invite-page">
         <SiteContainer>
           <div className="loading-state">Đang tải...</div>
         </SiteContainer>
@@ -140,7 +140,7 @@ export default function TaoThiepContent() {
   }
 
   return (
-    <div className="page-body page-body--fill">
+    <div className="page-body page-body--fill create-invite-page">
       <SiteContainer>
         <InviteWizard
           initialDraft={initialDraft}

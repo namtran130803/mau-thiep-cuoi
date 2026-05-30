@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { Pencil } from "lucide-react";
 
 type ImageUploadFieldProps = {
   label: string;
@@ -31,16 +32,27 @@ export default function ImageUploadField({ label, value, onChange }: ImageUpload
     }
   }
 
+  const actionLabel = uploading ? "Đang tải..." : value ? "Đổi ảnh" : "Chọn ảnh";
+
   return (
     <div className="img-upload field">
       <span className="field__label">{label}</span>
-      <div className="img-upload__box">
+      <button
+        type="button"
+        className="img-upload__box"
+        disabled={uploading}
+        aria-label={`${actionLabel} ${label}`}
+        onClick={() => inputRef.current?.click()}
+      >
         {value ? (
           <img src={value} alt={label} className="img-upload__preview" />
         ) : (
           <span className="img-upload__placeholder">Chưa có ảnh</span>
         )}
-      </div>
+        <span className="img-upload__action" aria-hidden="true">
+          <Pencil size={14} strokeWidth={2.2} />
+        </span>
+      </button>
       <input
         ref={inputRef}
         type="file"
@@ -48,14 +60,6 @@ export default function ImageUploadField({ label, value, onChange }: ImageUpload
         className="img-upload__input"
         onChange={(e) => handleFileChange(e.target.files?.[0])}
       />
-      <button
-        type="button"
-        className="site-btn site-btn--ghost site-btn--sm"
-        disabled={uploading}
-        onClick={() => inputRef.current?.click()}
-      >
-        {uploading ? "Đang tải..." : value ? "Đổi ảnh" : "Chọn ảnh"}
-      </button>
       {error && <span className="field__error">{error}</span>}
     </div>
   );

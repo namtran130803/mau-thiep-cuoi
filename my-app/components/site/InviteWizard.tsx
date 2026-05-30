@@ -31,16 +31,15 @@ import {
 } from "@/lib/storage/local";
 import { createEmptyInviteFormData } from "@/lib/form/default-invite-data";
 import { listInviteTemplates } from "@/lib/templates/registry";
-import { PACKAGES, GUEST_NAME_SERVICE_PRICE, formatVnd, type PackageType } from "@/lib/pricing";
+import {
+  PACKAGES,
+  GUEST_NAME_SERVICE_PRICE,
+  formatVnd,
+  type PackageType,
+} from "@/lib/pricing";
 import type { InviteFormData } from "@/lib/validation/invite";
 
-const STEPS = [
-  "Gói & mẫu",
-  "Tiệc cưới",
-  "Gia đình",
-  "Ảnh thiệp",
-  "Tài khoản",
-];
+const STEPS = ["Gói & mẫu", "Tiệc cưới", "Gia đình", "Ảnh thiệp", "Tài khoản"];
 
 type WizardDraft = {
   packageType: PackageType;
@@ -79,12 +78,14 @@ function applyQueryOverrides(
   if (overrides?.templateSlug) apply.setTemplateSlug(overrides.templateSlug);
 }
 
-export default function InviteWizard({ initialDraft, queryOverrides }: InviteWizardProps) {
+export default function InviteWizard({
+  initialDraft,
+  queryOverrides,
+}: InviteWizardProps) {
   const templates = useMemo(() => listInviteTemplates(), []);
 
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
   const [orderId, setOrderId] = useState("");
   const [invitationId, setInvitationId] = useState("");
   const [demoUrl, setDemoUrl] = useState("");
@@ -123,10 +124,14 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
           setOrderId(restored.orderId);
           setPackageType(restored.packageType);
           setGuestNameService(restored.guestNameService);
-          const nextTemplateSlug = restored.templateSlug ?? templates[0]?.slug ?? "thiep-cuoi-1";
-          const nextFormData = (restored.formData as InviteFormData | null) ?? createEmptyInviteFormData();
+          const nextTemplateSlug =
+            restored.templateSlug ?? templates[0]?.slug ?? "thiep-cuoi-1";
+          const nextFormData =
+            (restored.formData as InviteFormData | null) ??
+            createEmptyInviteFormData();
           if (restored.templateSlug) setTemplateSlug(restored.templateSlug);
-          if (restored.formData) setFormData(restored.formData as InviteFormData);
+          if (restored.formData)
+            setFormData(restored.formData as InviteFormData);
           saveDraft({
             packageType: restored.packageType,
             guestNameService: restored.guestNameService,
@@ -199,13 +204,14 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
     }
 
     void hydrate();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    const meta = isComplete && savedMeta
-      ? savedMeta
-      : { packageType, guestNameService, templateSlug };
+    const meta =
+      isComplete && savedMeta
+        ? savedMeta
+        : { packageType, guestNameService, templateSlug };
 
     saveDraft({
       packageType: meta.packageType,
@@ -213,7 +219,14 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
       templateSlug: meta.templateSlug,
       formData,
     });
-  }, [packageType, guestNameService, templateSlug, formData, isComplete, savedMeta]);
+  }, [
+    packageType,
+    guestNameService,
+    templateSlug,
+    formData,
+    isComplete,
+    savedMeta,
+  ]);
 
   useEffect(() => {
     if (!toast) return;
@@ -225,7 +238,10 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
     setToast(message);
   }
 
-  function updateField<K extends keyof InviteFormData>(key: K, value: InviteFormData[K]) {
+  function updateField<K extends keyof InviteFormData>(
+    key: K,
+    value: InviteFormData[K],
+  ) {
     setFormData((c) => ({ ...c, [key]: value }));
   }
 
@@ -239,25 +255,36 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
         if (!formData.brideName.trim()) return "Vui lòng nhập tên cô dâu";
         if (!formData.weddingAt) return "Vui lòng chọn thời gian";
         if (!formData.venue.name.trim()) return "Vui lòng nhập địa điểm";
-        if (!formData.venue.address.trim()) return "Vui lòng nhập địa chỉ tiệc cưới";
+        if (!formData.venue.address.trim())
+          return "Vui lòng nhập địa chỉ tiệc cưới";
         return null;
       case 2:
-        if (!formData.groomFamily.fatherName.trim()) return "Vui lòng nhập tên bố nhà trai";
-        if (!formData.groomFamily.motherName.trim()) return "Vui lòng nhập tên mẹ nhà trai";
-        if (!formData.groomFamily.address.trim()) return "Vui lòng nhập địa chỉ nhà trai";
-        if (!formData.brideFamily.fatherName.trim()) return "Vui lòng nhập tên bố nhà gái";
-        if (!formData.brideFamily.motherName.trim()) return "Vui lòng nhập tên mẹ nhà gái";
-        if (!formData.brideFamily.address.trim()) return "Vui lòng nhập địa chỉ nhà gái";
+        if (!formData.groomFamily.fatherName.trim())
+          return "Vui lòng nhập tên bố nhà trai";
+        if (!formData.groomFamily.motherName.trim())
+          return "Vui lòng nhập tên mẹ nhà trai";
+        if (!formData.groomFamily.address.trim())
+          return "Vui lòng nhập địa chỉ nhà trai";
+        if (!formData.brideFamily.fatherName.trim())
+          return "Vui lòng nhập tên bố nhà gái";
+        if (!formData.brideFamily.motherName.trim())
+          return "Vui lòng nhập tên mẹ nhà gái";
+        if (!formData.brideFamily.address.trim())
+          return "Vui lòng nhập địa chỉ nhà gái";
         return null;
       case 3:
         if (!formData.images.hero) return "Vui lòng tải lên ảnh bìa";
         if (!formData.images.thankYou) return "Vui lòng tải lên ảnh kết thiệp";
         return null;
       case 4:
-        if (!formData.bankAccount.accountNumber.trim()) return "Vui lòng nhập số tài khoản";
-        if (!formData.bankAccount.accountName.trim()) return "Vui lòng nhập tên chủ tài khoản";
-        if (!formData.bankAccount.bankBin.trim()) return "Vui lòng chọn ngân hàng";
-        if (!formData.wishNotificationEmail.trim()) return "Vui lòng nhập email";
+        if (!formData.bankAccount.accountNumber.trim())
+          return "Vui lòng nhập số tài khoản";
+        if (!formData.bankAccount.accountName.trim())
+          return "Vui lòng nhập tên chủ tài khoản";
+        if (!formData.bankAccount.bankBin.trim())
+          return "Vui lòng chọn ngân hàng";
+        if (!formData.wishNotificationEmail.trim())
+          return "Vui lòng nhập email";
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.wishNotificationEmail))
           return "Email không hợp lệ";
         return null;
@@ -268,23 +295,26 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
 
   function goNext() {
     const err = validateStep(step);
-    if (err) { setError(err); return; }
-    setError("");
+    if (err) {
+      showToast(err);
+      return;
+    }
     setStep((c) => Math.min(c + 1, STEPS.length - 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function goBack() {
-    setError("");
     setStep((c) => Math.max(c - 1, 0));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function handleSubmit() {
     const err = validateStep(step);
-    if (err) { setError(err); return; }
+    if (err) {
+      showToast(err);
+      return;
+    }
     setSubmitting(true);
-    setError("");
     const isUpdate = Boolean(invitationId);
     try {
       let currentOrderId = orderId;
@@ -311,7 +341,11 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
       });
       setInvitationId(result.invitationId);
       setDemoUrl(result.demoUrl);
-      const nextMeta: SavedMeta = { packageType, guestNameService, templateSlug };
+      const nextMeta: SavedMeta = {
+        packageType,
+        guestNameService,
+        templateSlug,
+      };
       setSavedMeta(nextMeta);
       saveDraft({ ...nextMeta, formData });
       writeLocalJson(PACKAGE_STORAGE_KEY, {
@@ -326,7 +360,7 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
       setIsComplete(true);
       if (isUpdate) showToast("Đã cập nhật bản xem trước");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Lưu thất bại");
+      showToast(e instanceof Error ? e.message : "Lưu thất bại");
     } finally {
       setSubmitting(false);
     }
@@ -351,7 +385,8 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
             </span>
             <p className="wdemo-card__title">Thiệp của bạn đã sẵn sàng</p>
             <p className="wdemo-card__desc">
-              Xem lại, chỉnh sửa thêm hoặc thanh toán để nhận liên kết chính thức.
+              Xem lại, chỉnh sửa thêm hoặc thanh toán để nhận liên kết chính
+              thức.
             </p>
           </div>
           <div className="wdemo-card__actions">
@@ -388,12 +423,13 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
       {/* ── Step title ── */}
       <div className="wstep-title">
         <h2 className="wstep-title__text">{STEPS[step]}</h2>
-        <span className="wstep-title__counter">{step + 1} / {STEPS.length}</span>
+        <span className="wstep-title__counter">
+          {step + 1} / {STEPS.length}
+        </span>
       </div>
 
       {/* ── Panel ── */}
       <div className="wizard-panel">
-
         {/* BƯỚC 1 — Gói & mẫu */}
         {step === 0 && (
           <div className="form-stack">
@@ -402,9 +438,14 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
               <p className="wcard__title">Mẫu thiệp</p>
               <label className="field">
                 <span className="field__label">Chọn mẫu</span>
-                <select value={templateSlug} onChange={(e) => setTemplateSlug(e.target.value)}>
+                <select
+                  value={templateSlug}
+                  onChange={(e) => setTemplateSlug(e.target.value)}
+                >
                   {templates.map((t, i) => (
-                    <option key={t.slug} value={t.slug}>Mẫu {i + 1}</option>
+                    <option key={t.slug} value={t.slug}>
+                      Mẫu {i + 1}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -434,7 +475,9 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
                       <span className="wpkg-item__dot" />
                     </span>
                     <span className="wpkg-item__name">{pkg.name}</span>
-                    <span className="wpkg-item__price">{formatVnd(pkg.price)}</span>
+                    <span className="wpkg-item__price">
+                      {formatVnd(pkg.price)}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -442,25 +485,41 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
 
             {/* Tên riêng khách mời */}
             <div className="wcard">
-              <p className="wcard__title">Tên riêng khách mời</p>
-              <div className="wguest-opts">
+              <p className="wcard__title">Tên riêng</p>
+              <div className="wguest-list">
                 <button
                   type="button"
-                  className={`wguest-opt${!guestNameService ? " is-active" : ""}`}
+                  className={`wguest-item${!guestNameService ? " is-active" : ""}`}
                   onClick={() => setGuestNameService(false)}
                 >
-                  <Users size={20} className="wguest-opt__icon" strokeWidth={1.5} />
-                  <span className="wguest-opt__label">Thiệp chung</span>
-                  <span className="wguest-opt__price">Miễn phí</span>
+                  <span className="wguest-item__radio">
+                    <span className="wguest-item__dot" />
+                  </span>
+                  <Users
+                    size={18}
+                    className="wguest-item__icon"
+                    strokeWidth={1.6}
+                  />
+                  <span className="wguest-item__name">Thiệp chung</span>
+                  <span className="wguest-item__price">Miễn phí</span>
                 </button>
                 <button
                   type="button"
-                  className={`wguest-opt${guestNameService ? " is-active" : ""}`}
+                  className={`wguest-item${guestNameService ? " is-active" : ""}`}
                   onClick={() => setGuestNameService(true)}
                 >
-                  <UserRound size={20} className="wguest-opt__icon" strokeWidth={1.5} />
-                  <span className="wguest-opt__label">Tên riêng</span>
-                  <span className="wguest-opt__price">+{formatVnd(GUEST_NAME_SERVICE_PRICE)}</span>
+                  <span className="wguest-item__radio">
+                    <span className="wguest-item__dot" />
+                  </span>
+                  <UserRound
+                    size={18}
+                    className="wguest-item__icon"
+                    strokeWidth={1.6}
+                  />
+                  <span className="wguest-item__name">Tên riêng</span>
+                  <span className="wguest-item__price">
+                    +{formatVnd(GUEST_NAME_SERVICE_PRICE)}
+                  </span>
                 </button>
               </div>
             </div>
@@ -507,7 +566,12 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
                   <span className="field__label">Tên địa điểm</span>
                   <input
                     value={formData.venue.name}
-                    onChange={(e) => updateField("venue", { ...formData.venue, name: e.target.value })}
+                    onChange={(e) =>
+                      updateField("venue", {
+                        ...formData.venue,
+                        name: e.target.value,
+                      })
+                    }
                     placeholder="Nhà hàng Tiệc Cưới ABC"
                   />
                 </label>
@@ -516,15 +580,30 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
                   <textarea
                     rows={2}
                     value={formData.venue.address}
-                    onChange={(e) => updateField("venue", { ...formData.venue, address: e.target.value })}
+                    onChange={(e) =>
+                      updateField("venue", {
+                        ...formData.venue,
+                        address: e.target.value,
+                      })
+                    }
                     placeholder="Số nhà, đường, quận, thành phố"
                   />
                 </label>
                 <label className="field">
-                  <span className="field__label">Liên kết Google Maps <span style={{ fontWeight: 400, color: "var(--muted)" }}>(tuỳ chọn)</span></span>
+                  <span className="field__label">
+                    Liên kết Google Maps{" "}
+                    <span style={{ fontWeight: 400, color: "var(--muted)" }}>
+                      (tuỳ chọn)
+                    </span>
+                  </span>
                   <input
                     value={formData.venue.mapUrl ?? ""}
-                    onChange={(e) => updateField("venue", { ...formData.venue, mapUrl: e.target.value })}
+                    onChange={(e) =>
+                      updateField("venue", {
+                        ...formData.venue,
+                        mapUrl: e.target.value,
+                      })
+                    }
                     placeholder="https://maps.google.com/..."
                   />
                 </label>
@@ -543,14 +622,24 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
                   <span className="field__label">Tên bố</span>
                   <input
                     value={formData.groomFamily.fatherName}
-                    onChange={(e) => updateField("groomFamily", { ...formData.groomFamily, fatherName: e.target.value })}
+                    onChange={(e) =>
+                      updateField("groomFamily", {
+                        ...formData.groomFamily,
+                        fatherName: e.target.value,
+                      })
+                    }
                   />
                 </label>
                 <label className="field">
                   <span className="field__label">Tên mẹ</span>
                   <input
                     value={formData.groomFamily.motherName}
-                    onChange={(e) => updateField("groomFamily", { ...formData.groomFamily, motherName: e.target.value })}
+                    onChange={(e) =>
+                      updateField("groomFamily", {
+                        ...formData.groomFamily,
+                        motherName: e.target.value,
+                      })
+                    }
                   />
                 </label>
               </div>
@@ -559,7 +648,12 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
                 <textarea
                   rows={2}
                   value={formData.groomFamily.address}
-                  onChange={(e) => updateField("groomFamily", { ...formData.groomFamily, address: e.target.value })}
+                  onChange={(e) =>
+                    updateField("groomFamily", {
+                      ...formData.groomFamily,
+                      address: e.target.value,
+                    })
+                  }
                 />
               </label>
             </div>
@@ -571,14 +665,24 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
                   <span className="field__label">Tên bố</span>
                   <input
                     value={formData.brideFamily.fatherName}
-                    onChange={(e) => updateField("brideFamily", { ...formData.brideFamily, fatherName: e.target.value })}
+                    onChange={(e) =>
+                      updateField("brideFamily", {
+                        ...formData.brideFamily,
+                        fatherName: e.target.value,
+                      })
+                    }
                   />
                 </label>
                 <label className="field">
                   <span className="field__label">Tên mẹ</span>
                   <input
                     value={formData.brideFamily.motherName}
-                    onChange={(e) => updateField("brideFamily", { ...formData.brideFamily, motherName: e.target.value })}
+                    onChange={(e) =>
+                      updateField("brideFamily", {
+                        ...formData.brideFamily,
+                        motherName: e.target.value,
+                      })
+                    }
                   />
                 </label>
               </div>
@@ -587,11 +691,15 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
                 <textarea
                   rows={2}
                   value={formData.brideFamily.address}
-                  onChange={(e) => updateField("brideFamily", { ...formData.brideFamily, address: e.target.value })}
+                  onChange={(e) =>
+                    updateField("brideFamily", {
+                      ...formData.brideFamily,
+                      address: e.target.value,
+                    })
+                  }
                 />
               </label>
             </div>
-
           </div>
         )}
 
@@ -604,28 +712,42 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
                 <ImageUploadField
                   label="Ảnh bìa"
                   value={formData.images.hero}
-                  onChange={(url) => updateField("images", { ...formData.images, hero: url })}
+                  onChange={(url) =>
+                    updateField("images", { ...formData.images, hero: url })
+                  }
                 />
                 <ImageUploadField
                   label="Ảnh kết thiệp"
                   value={formData.images.thankYou}
-                  onChange={(url) => updateField("images", { ...formData.images, thankYou: url })}
+                  onChange={(url) =>
+                    updateField("images", { ...formData.images, thankYou: url })
+                  }
                 />
               </div>
             </div>
 
             <div className="wcard">
               <p className="wcard__title">Ảnh thư mời (3 ảnh)</p>
-              <div className="form-row" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
+              <div
+                className="form-row"
+                style={{ gridTemplateColumns: "repeat(3,1fr)" }}
+              >
                 {formData.images.invitation.map((url, index) => (
                   <ImageUploadField
                     key={`inv-${index}`}
                     label={`${index + 1}`}
                     value={url}
                     onChange={(nextUrl) => {
-                      const inv = [...formData.images.invitation] as [string, string, string];
+                      const inv = [...formData.images.invitation] as [
+                        string,
+                        string,
+                        string,
+                      ];
                       inv[index] = nextUrl;
-                      updateField("images", { ...formData.images, invitation: inv });
+                      updateField("images", {
+                        ...formData.images,
+                        invitation: inv,
+                      });
                     }}
                   />
                 ))}
@@ -641,9 +763,15 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
                     label={`${index + 1}`}
                     value={url}
                     onChange={(nextUrl) => {
-                      const fam = [...formData.images.family] as [string, string];
+                      const fam = [...formData.images.family] as [
+                        string,
+                        string,
+                      ];
                       fam[index] = nextUrl;
-                      updateField("images", { ...formData.images, family: fam });
+                      updateField("images", {
+                        ...formData.images,
+                        family: fam,
+                      });
                     }}
                   />
                 ))}
@@ -652,14 +780,19 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
 
             <div className="wcard">
               <p className="wcard__title">Bộ ảnh cưới (10 ảnh)</p>
-              <div className="form-row" style={{ gridTemplateColumns: "repeat(2,1fr)" }}>
+              <div
+                className="form-row"
+                style={{ gridTemplateColumns: "repeat(2,1fr)" }}
+              >
                 {formData.images.gallery.map((url, index) => (
                   <ImageUploadField
                     key={`gal-${index}`}
                     label={`${index + 1}`}
                     value={url}
                     onChange={(nextUrl) => {
-                      const gallery = [...formData.images.gallery] as InviteFormData["images"]["gallery"];
+                      const gallery = [
+                        ...formData.images.gallery,
+                      ] as InviteFormData["images"]["gallery"];
                       gallery[index] = nextUrl;
                       updateField("images", { ...formData.images, gallery });
                     }}
@@ -677,7 +810,9 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
               <p className="wcard__title">Chuyển khoản mừng cưới</p>
               <BankAccountFields
                 value={formData.bankAccount}
-                onChange={(bankAccount) => updateField("bankAccount", bankAccount)}
+                onChange={(bankAccount) =>
+                  updateField("bankAccount", bankAccount)
+                }
               />
             </div>
 
@@ -686,31 +821,38 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
               <label className="field">
                 <span className="field__label">Email</span>
                 <input
-                  type="email"  
+                  type="email"
                   value={formData.wishNotificationEmail}
-                  onChange={(e) => updateField("wishNotificationEmail", e.target.value)}
+                  onChange={(e) =>
+                    updateField("wishNotificationEmail", e.target.value)
+                  }
                   placeholder="ten@example.com"
                 />
                 <span className="field__hint">
-                  Liên kết thiệp chính thức và lời chúc của khách sẽ gửi về email này sau khi thanh toán.
+                  Liên kết thiệp chính thức và lời chúc của khách sẽ gửi về
+                  email này sau khi thanh toán.
                 </span>
               </label>
             </div>
           </div>
         )}
-
-        {error && <p className="form-error-bar">{error}</p>}
-        <div style={{ height: 20 }} />
       </div>
 
       {/* ── Sticky actions ── */}
       <div className="wizard-actions">
         <div className="wizard-progress">
-          <div className="wizard-progress__fill" style={{ width: `${progressPct}%` }} />
+          <div
+            className="wizard-progress__fill"
+            style={{ width: `${progressPct}%` }}
+          />
         </div>
         <div className="wizard-actions__inner">
           {step > 0 ? (
-            <button type="button" className="site-btn site-btn--ghost" onClick={goBack}>
+            <button
+              type="button"
+              className="site-btn site-btn--ghost"
+              onClick={goBack}
+            >
               <ChevronLeft size={15} />
               Quay lại
             </button>
@@ -719,7 +861,11 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
           )}
 
           {step < STEPS.length - 1 ? (
-            <button type="button" className="site-btn site-btn--primary" onClick={goNext}>
+            <button
+              type="button"
+              className="site-btn site-btn--primary"
+              onClick={goNext}
+            >
               Tiếp theo
               <ArrowRight size={15} />
             </button>
@@ -730,16 +876,16 @@ export default function InviteWizard({ initialDraft, queryOverrides }: InviteWiz
               disabled={submitting}
               onClick={handleSubmit}
             >
-              {submitting
-                ? "Đang lưu..."
-                : invitationId
-                  ? "Cập nhật"
-                  : (
-                    <>
-                      <Eye size={14} />
-                      Tạo bản xem trước
-                    </>
-                  )}
+              {submitting ? (
+                "Đang lưu..."
+              ) : invitationId ? (
+                "Cập nhật"
+              ) : (
+                <>
+                  <Eye size={14} />
+                  Tạo bản xem trước
+                </>
+              )}
             </button>
           )}
         </div>
