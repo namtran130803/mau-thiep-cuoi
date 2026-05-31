@@ -5,7 +5,7 @@ import {
   setCheckoutOrderId,
 } from "@/lib/checkout/session";
 import { formatDbId, parseDbId, tryParseDbId } from "@/lib/db/id";
-import { prisma } from "@/lib/db/prisma";
+import { prisma, withPrisma } from "@/lib/db/prisma";
 import type { InviteData } from "@/lib/invite/types";
 import type { PackageType } from "@/lib/pricing";
 
@@ -34,52 +34,54 @@ export async function restoreCheckoutSession(): Promise<RestoredCheckoutSession 
   const dbOrderId = tryParseDbId(orderId);
   if (!dbOrderId) return null;
 
-  const order = await prisma.order.findUnique({
-    where: { id: dbOrderId },
-    include: {
-      invitations: { orderBy: { createdAt: "asc" } },
-    },
-  });
+  return withPrisma(async (prisma) => {
+    const order = await prisma.order.findUnique({
+      where: { id: dbOrderId },
+      include: {
+        invitations: { orderBy: { createdAt: "asc" } },
+      },
+    });
 
-  if (!order) return null;
-  if (order.status === "published" || order.status === "paid") return null;
+    if (!order) return null;
+    if (order.status === "published" || order.status === "paid") return null;
 
-  const invitations = order.invitations.map((invitation) => ({
-    invitationId: formatDbId(invitation.id),
-    demoUrl: `/demo/${invitation.slug}`,
-    label: invitation.label,
-    templateSlug: invitation.templateSlug,
-    formData: invitation.data as InviteData,
-  }));
-  const invitation = invitations[0];
+    const invitations = order.invitations.map((invitation) => ({
+      invitationId: formatDbId(invitation.id),
+      demoUrl: `/demo/${invitation.slug}`,
+      label: invitation.label,
+      templateSlug: invitation.templateSlug,
+      formData: invitation.data as InviteData,
+    }));
+    const invitation = invitations[0];
 
-  if (!invitation) {
+    if (!invitation) {
+      return {
+        orderId: formatDbId(order.id),
+        email: order.email,
+        invitationId: null,
+        demoUrl: null,
+        invitations: [],
+        packageType: order.packageType as PackageType,
+        guestNameService: order.guestNameService,
+        templateSlug: null,
+        formData: null,
+        hasDemo: false,
+      };
+    }
+
     return {
       orderId: formatDbId(order.id),
       email: order.email,
-      invitationId: null,
-      demoUrl: null,
-      invitations: [],
+      invitationId: invitation.invitationId,
+      demoUrl: invitation.demoUrl,
+      invitations,
       packageType: order.packageType as PackageType,
       guestNameService: order.guestNameService,
-      templateSlug: null,
-      formData: null,
-      hasDemo: false,
+      templateSlug: invitation.templateSlug,
+      formData: invitation.formData,
+      hasDemo: true,
     };
-  }
-
-  return {
-    orderId: formatDbId(order.id),
-    email: order.email,
-    invitationId: invitation.invitationId,
-    demoUrl: invitation.demoUrl,
-    invitations,
-    packageType: order.packageType as PackageType,
-    guestNameService: order.guestNameService,
-    templateSlug: invitation.templateSlug,
-    formData: invitation.formData,
-    hasDemo: true,
-  };
+  }, null);
 }
 
 export async function reclaimCheckoutSession(input: {
